@@ -1,0 +1,62 @@
+<!DOCTYPE html>  
+<meta charset="utf-8" /> 
+   <head>
+      <title>{{ title }}</title>
+   <script language="javascript" type="text/javascript">
+var output;
+var ws;
+
+function init() {
+    output = document.getElementById("body");
+    ws = new WebSocket("ws://192.168.178.20:8888/websocket");
+    ws.onopen = function(evt) { onOpen(evt) };
+    ws.onmessage = function(evt) { onMessage(evt) };
+    ws.onerror = function(evt) { onError(evt) };
+    ws.send("Hello, world");
+};
+
+function doSend(message) { 
+    writeToScreen("SENT: " + message);
+    ws.send(message); 
+}
+
+function onOpen(evt) { 
+    writeToScreen("CONNECTED"); 
+    doSend("WebSocket rocks"); 
+}
+
+function onMessage(evt) { 
+    writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>'); 
+    ws.close(); 
+}
+
+function onError(evt) { 
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data); 
+}
+
+function writeToScreen(message) { 
+    var pre = document.createElement("p"); 
+    pre.style.wordWrap = "break-word"; 
+    pre.innerHTML = message; 
+    output.appendChild(pre); 
+}
+
+window.addEventListener("load", init, false);
+ 
+   </script>
+   </head>
+   <body>
+     1
+     <div style="border:double #D8FD02 4px;">
+         <div id="body">
+         2
+         </div>
+     </div>
+     <ul>
+       {% for item in items %}
+         <li>{{ escape(item) }}</li>
+       {% end %}
+     </ul>
+     <img src="http://192.168.178.20:8080/?action=stream" />
+   </body>
+</html>
