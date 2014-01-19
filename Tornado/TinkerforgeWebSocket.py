@@ -39,6 +39,7 @@ class MyApp(tornado.web.Application):
         loop = tornado.ioloop.IOLoop.instance()
         period_cbk = tornado.ioloop.PeriodicCallback(self.notify, TIMEOUT, loop)
         period_cbk.start()
+
     
     def notify(self):
         value = 1
