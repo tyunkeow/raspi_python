@@ -27,7 +27,7 @@ function onOpen(evt) {
 
 function onMessage(evt) { 
     writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>'); 
-    ws.close(); 
+    //ws.close(); 
 }
 
 function onError(evt) { 
@@ -38,7 +38,7 @@ function writeToScreen(message) {
     var pre = document.createElement("p"); 
     pre.style.wordWrap = "break-word"; 
     pre.innerHTML = message; 
-    output.appendChild(pre); 
+    output.replaceChild(pre, output.firstChild); 
 }
 
 window.addEventListener("load", init, false);
@@ -52,6 +52,7 @@ window.addEventListener("load", init, false);
          2
          </div>
      </div>
+     <canvas id="mycanvas" width="100" height="100"></canvas>
      <ul>
        {% for item in items %}
          <li>{{ escape(item) }}</li>
