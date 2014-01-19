@@ -3,6 +3,7 @@ import tornado.web
 import tornado.websocket
 
 TIMEOUT = 1000
+PORT = 8888
 globalcount =0 
 
 class TinkerforgeWebSocket(tornado.websocket.WebSocketHandler):
@@ -28,7 +29,7 @@ class TinkerforgeWebSocket(tornado.websocket.WebSocketHandler):
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         items = ["Halo 1", "World 2", "Item 3"]
-        self.render("home.html", title="RobotControlCenter", items=items)
+        self.render("home.html", title="RobotControlCenter", port=PORT, items=items)
 
 class MyApp(tornado.web.Application):
 
@@ -54,6 +55,7 @@ application = MyApp([
 ])
 
 if __name__ == "__main__":
-    application.listen(8888)
+    application.listen(PORT)
     loop = tornado.ioloop.IOLoop.instance()
+    print "Starting loop..."
     loop.start()

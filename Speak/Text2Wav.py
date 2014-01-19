@@ -7,7 +7,7 @@ pygame.mixer.init(48000, -16, 1, 1024)
 
 DEFAULT_VOLUME = 50
 DEFAULT_SPEED = 1
-AUDIO_DIR = '/home/pi/data/audio/'
+AUDIO_DIR = '~/data/audio/'
 WORD_DB_DIR = AUDIO_DIR + 'word_db/'
 words = [ "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwoelf", "dreizehn",
 "zwanzig", "dreissig", "vierzig", "fuenfzig", "sechszig", "siebzig", "achtzig", "neunzig", "hundert", "tausend", 

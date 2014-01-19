@@ -8,7 +8,8 @@ var ws;
 
 function init() {
     output = document.getElementById("body");
-    ws = new WebSocket("ws://192.168.178.20:8888/websocket");
+    //ws = new WebSocket("ws://192.168.178.20:8888/websocket");
+    ws = new WebSocket("ws://" + window.location.host + "/websocket");
     ws.onopen = function(evt) { onOpen(evt) };
     ws.onmessage = function(evt) { onMessage(evt) };
     ws.onerror = function(evt) { onError(evt) };
