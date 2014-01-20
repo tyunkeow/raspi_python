@@ -3,7 +3,7 @@
 
 import json
 import random
-from Text2Wav import text2wav, playWav
+from Text2Wav import text2wav, play_wav
 
 
 ins_data = {
@@ -221,7 +221,7 @@ def speak_next_insult():
     max = len(ins_data['steigerungen']) * len(ins_data['adjektive']) * len(ins_data['substantive'])
     fn = filename.format(random.randint(0, max))
     print "speaking insult " + str(fn)
-    playWav(fn)
+    play_wav(fn)
 
 
 def create_insult_audio_db():

@@ -1,40 +1,57 @@
 import os
+import sys
 import pygame.mixer
 import base64
+import time
 from pydub import AudioSegment
 
-pygame.mixer.init(48000, -16, 1, 1024)
+pygame.mixer.init()
+#pygame.mixer.pre_init(44100, 16, 2, 4096)
+#pygame.init()
+pygame.display.init()
+pygame.display.set_mode((640,480))
 
 DEFAULT_VOLUME = 50
 DEFAULT_SPEED = 1
 AUDIO_DIR = '~/data/audio/'
+MPLAYER = '/opt/local/bin/mplayer'  # /usr/bin/mplayer
 WORD_DB_DIR = AUDIO_DIR + 'word_db/'
-words = [ "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwoelf", "dreizehn",
-"zwanzig", "dreissig", "vierzig", "fuenfzig", "sechszig", "siebzig", "achtzig", "neunzig", "hundert", "tausend", 
-"uhr", "hallo"]
+words = ['eins', 'zwei', 'drei', 'vier', "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwoelf",
+         'dreizehn', "zwanzig", "dreissig", "vierzig", "fuenfzig", "sechszig", "siebzig", "achtzig", "neunzig",
+         "hundert", "tausend", "uhr", "hallo"]
+
 
 # volume = 0.1 - 100
 # speed = 0 - 100 (2 = verdoppelte geschw.)
-def text2wav_google(text, filename, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED, overwrite=False):
-    if overwrite or not os.path.exists(filename):
+def text2wav_google(text, filename, overwrite=False):
+    filename = os.path.expanduser(filename)
+    file_exists = os.path.exists(filename)
+    if not overwrite and file_exists:
+        print "Soundfile {} already exists and overwrite flag was not set. Skipping...".format(filename)
+    else:
         url = "http://translate.google.com/translate_tts?tl=de&q=" + text
-        #os.system('/usr/bin/mplayer -ao alsa -speed 1.5 -dumpaudio -dumpfile {} -noconsolecontrols "{}"'.format(filename, url))
-        os.system('/usr/bin/mplayer -ao pcm:file={} -speed {} -volume {} -noconsolecontrols "{}"'.format(filename, speed, volume, url))
+        #os.system(MPLAYER + ' -ao pcm:file={} -speed {} -volume {} -noconsolecontrols "{}"'.format(filename, speed, volume, url))
+        user_agent = '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.73.11 (KHTML, like Gecko) Version/6.1.1 Safari/537.73.11"'
+        os.system('wget --user-agent {} -O {} "{}"'.format(user_agent, filename, url))
         print "Soundfile written to " + filename
 
 
-def text2wav_espeak(text, filename): 
+def text2wav_espeak(text, filename, overwrite=False):
     os.system('espeak -vde -w {} "{}"'.format(filename, text))
 
-def text2wav(text, filename, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED):
-    text2wav_google(text, filename, volume, speed)
+
+def text2wav(text, filename, overwrite=False):
+    text2wav_google(text, filename, overwrite)
+
 
 def get_filename(text):
     return WORD_DB_DIR + base64.b64encode(text) + '.wav'
 
+
 def digit2text(digit):
     digit_words = [ "null", "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwoelf" ]
     return digit_words[digit]
+
 
 def num2text(integer):
     s = []
@@ -42,36 +59,65 @@ def num2text(integer):
         s.append(digit2text(int(digit)))
     return s
 
+
 def speak(text, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED):
     if isinstance(text, (int, long)):
         parts = num2text(int(text))
-	files = [get_filename(w) for w in parts]
+        files = [get_filename(w) for w in parts]
         print "files: " + str(files)
-	#wavs = [AudioSegment.from_wav(f) for f in files]
+        #wavs = [AudioSegment.from_wav(f) for f in files]
         #for w in wavs:
-        #    w.
         for f in files:
-            playWav(f)
+            play_wav(f)
     else:
         filename = get_filename(text)
         if not os.path.exists(filename):
             filename = "/tmp/myspeak.wav"
         text2wav(text, filename, volume, speed)
-        playWav(filename)
+        play_wav(filename)
 
-def playWav(filename):
+
+def play_wav(filename):
+    filename = os.path.expanduser(filename)
+    print "Playing file " + str(filename)
     if True:
-        sound = pygame.mixer.Sound(filename)
-        channelA = pygame.mixer.Channel(1)
-        channelA.play(sound)
+        #wav = AudioSegment.from_wav(filename)
+
+        f = open(filename, "rb")
+        pygame.mixer.music.load(f)
+        pygame.mixer.music.play(1)
+
+        clock = pygame.time.Clock()
+        #clock.tick(10000)
+        while pygame.mixer.music.get_busy():
+            #pygame.event.poll()
+            clock.tick(10)
+        pygame.mixer.music.stop()
+        print "play_wav end"
     else:
         os.system('aplay -D sysdefault:CARD=Device {}'.format(filename))
 
-def build_word_db(volume, speed):
+
+def build_word_db(overwrite=False):
+    print "Building WAV database for basic words..."
     for word in words:
         filename = get_filename(word)
-        text2wav(word, filename, volume, speed)
+        text2wav(word, filename, overwrite)
 
 if __name__ == "__main__":
-    build_word_db(30, 1)
+    build_word_db()
     speak(15)
+    print "speak"
+    #pygame.mixer.stop()
+    #print "stop mixer"
+    #pygame.mixer.quit()
+    #print "quit mixer"
+    curEvent = pygame.event.poll()
+
+    while curEvent.type != pygame.QUIT:
+         # do something
+         curEvent = pygame.event.poll()
+    pygame.quit()
+    print "Done"
+    sys.exit()
+
