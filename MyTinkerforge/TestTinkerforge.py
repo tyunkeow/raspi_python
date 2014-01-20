@@ -1,5 +1,5 @@
 
-HOST='localhost'
+HOST='192.168.178.20'
 PORT=4223
 UID_MT='jS3'
 UID_US='jAW'

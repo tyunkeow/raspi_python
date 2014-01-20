@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # DistanceUS1
 #
-from MyTinkerforge import register_distance_us 
+from TestTinkerforge import register_distance_us
 from time import sleep
 from Insulter import get_insult 
 from Text2Wav import speak
