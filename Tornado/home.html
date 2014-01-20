@@ -7,7 +7,7 @@ var output;
 var ws;
 
 function init() {
-    output = document.getElementById("body");
+    output = document.getElementById("distance_us_1");
     //ws = new WebSocket("ws://192.168.178.20:8888/websocket");
     ws = new WebSocket("ws://" + window.location.host + "/websocket");
     ws.onopen = function(evt) { onOpen(evt) };
@@ -27,7 +27,7 @@ function onOpen(evt) {
 }
 
 function onMessage(evt) { 
-    writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>'); 
+    writeToScreen('<span style="color: blue;">' + evt.data + '</span>');
     //ws.close(); 
 }
 
@@ -39,7 +39,8 @@ function writeToScreen(message) {
     var pre = document.createElement("p"); 
     pre.style.wordWrap = "break-word"; 
     pre.innerHTML = message; 
-    output.replaceChild(pre, output.firstChild); 
+    //output.replaceChild(pre, output.firstChild);
+     output.innerHTML = message;
 }
 
 window.addEventListener("load", init, false);
@@ -47,11 +48,14 @@ window.addEventListener("load", init, false);
    </script>
    </head>
    <body>
-     1
-     <div style="border:double #D8FD02 4px;">
-         <div id="body">
-         2
-         </div>
+     Hallo Nicole
+     <div style="border:solid black 2px;">
+         <span class="label" style="border:solid black 1px;display:inline">Distance US 1:</span>
+         <span id="distance_us_1" style="border:solid black 1px;display:inline">Not Initialized</span>
+     </div>
+     <div style="border:solid black 2px;">
+         <span class="label" style="border:solid black 1px;display:inline">Servo External Voltage:</span>
+         <span id="servo" style="border:solid black 1px;display:inline">Not Initialized</span>
      </div>
      <canvas id="mycanvas" width="100" height="100"></canvas>
      <ul>
