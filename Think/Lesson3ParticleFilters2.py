@@ -8,6 +8,7 @@
 
 from math import *
 import random
+import numpy as np
 from visual import BeliefsMapStr
 from RobotWindow import Window
 
@@ -15,7 +16,63 @@ landmarks = [[20.0, 20.0], [80.0, 80.0], [20.0, 80.0], [80.0, 20.0]]
 world_size = 100.0
 
 
-class Robot:
+def Gaussian(mu, sigma, x):
+
+    # calculates the probability of x for 1-dim Gaussian with mean mu and var. sigma
+    return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
+
+
+class Arrow:
+    def __init__(self):
+        self.x = random.random() * world_size
+        self.y = random.random() * world_size
+        self.orientation = random.random() * 2.0 * pi
+
+    # copy constructor
+    def copy(self):
+        result = Arrow()
+        result.x = self.x
+        result.y = self.y
+        result.orientation = self.orientation
+        return result
+
+    def move(self, turn, forward):
+
+        self.orientation += float(turn)
+        self.orientation %= 2 * pi
+
+        dist = float(forward)
+        self.x += (cos(self.orientation) * dist)
+        self.y += (sin(self.orientation) * dist)
+        self.x %= world_size    # cyclic truncate
+        self.y %= world_size
+
+    #
+    # Liefert Vector v = [v1, v2] fuer den gilt
+    # self.move(0, v1).x = arrow.move(0, v2).x
+    # und
+    # self.move(0, v1).x = arrow.move(0, v2).x
+    #
+    def collision_vector(self, arrow):
+        a = np.array([[cos(self.orientation), - cos(arrow.orientation)], [sin(self.orientation), -sin(arrow.orientation)]])
+        b = np.array([[arrow.x - self.x], [arrow.y - self.y]])
+        #print a
+        #print b
+        v = np.linalg.solve(a, b)
+        print v
+        return "v=" + str(v)
+
+    def intersect(self, arrow):
+        (v1, v2) = self.collision_vector(arrow)
+        arr = self.copy()
+        arr.move(0, v1)
+        return arr.x, arr.y
+
+    def __repr__(self):
+        return 'Arrow[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
+
+
+class BaseRobot:
     def __init__(self):
         self.x = random.random() * world_size
         self.y = random.random() * world_size
@@ -42,14 +99,6 @@ class Robot:
         self.turn_noise = float(new_t_noise)
         self.sense_noise = float(new_s_noise)
 
-    def sense(self):
-        Z = []
-        for i in range(len(landmarks)):
-            dist = sqrt((self.x - landmarks[i][0]) ** 2 + (self.y - landmarks[i][1]) ** 2)
-            dist += random.gauss(0.0, self.sense_noise)
-            Z.append(dist)
-        return Z
-
     def move(self, turn, forward):
         if forward < 0:
             raise ValueError, 'Robot cant move backwards'
@@ -71,11 +120,18 @@ class Robot:
         res.set_noise(self.forward_noise, self.turn_noise, self.sense_noise)
         return res
 
-    def Gaussian(self, mu, sigma, x):
+    def __repr__(self):
+        return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
 
-        # calculates the probability of x for 1-dim Gaussian with mean mu and var. sigma
-        return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
 
+class Robot(BaseRobot):
+    def sense(self):
+        Z = []
+        for i in range(len(landmarks)):
+            dist = sqrt((self.x - landmarks[i][0]) ** 2 + (self.y - landmarks[i][1]) ** 2)
+            dist += random.gauss(0.0, self.sense_noise)
+            Z.append(dist)
+        return Z
 
     def measurement_prob(self, measurement):
 
@@ -84,11 +140,8 @@ class Robot:
         prob = 1.0
         for i in range(len(landmarks)):
             dist = sqrt((self.x - landmarks[i][0]) ** 2 + (self.y - landmarks[i][1]) ** 2)
-            prob *= self.Gaussian(dist, self.sense_noise, measurement[i])
+            prob *= Gaussian(dist, self.sense_noise, measurement[i])
         return prob
-
-    def __repr__(self):
-        return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
 
 
 def eval(r, p):
@@ -105,17 +158,18 @@ def show_generation(myrobot):
     win.dot_red(myrobot.x, myrobot.y)
     win.show()
 
-#myrobot = robot()
-#myrobot.set_noise(5.0, 0.1, 5.0)
-#myrobot.set(30.0, 50.0, pi/2)
-#myrobot = myrobot.move(-pi/2, 15.0)
-#print myrobot.sense()
-#myrobot = myrobot.move(-pi/2, 10.0)
-#print myrobot.sense()
+
+arrow1 = Arrow()
+arrow2 = Arrow()
+(r1, r2) = arrow1.collision_vector(arrow2)
+arrow1.move(0, r1)
+arrow2.move(0, r2)
+print arrow1
+print arrow2
+print arrow1.intersect(arrow2)
+print ".................."
 
 myrobot = Robot()
-myrobot = myrobot.move(0.1, 5.0)
-Z = myrobot.sense()
 
 N = 1000
 p = []
@@ -127,38 +181,33 @@ for i in range(N):
 win = Window()
 show_generation(myrobot)
 
-#p2 = []
-#for i in range(N):
-#    p2.append(p[i].move(0.1, 5.0))
-#p = p2
-p = [robot.move(.1, 5.) for robot in p]
-show_generation(myrobot)
+T = 40
 
-w = []
-for i in range(N):
-    w.append(p[i].measurement_prob(Z))
+for j in range(T):
+    turn = random.random() * 2*pi
+    forward = random.random() * 25
+    myrobot = myrobot.move(turn, forward)
 
+    p = [robot.move(turn, forward) for robot in p]
+    show_generation(myrobot)
 
-#### DON'T MODIFY ANYTHING ABOVE HERE! ENTER CODE BELOW ####
-# You should make sure that p3 contains a list with particles
-# resampled according to their weights.
-# Also, DO NOT MODIFY p.
+    Z = myrobot.sense()
+    w = []
+    for i in range(N):
+        w.append(p[i].measurement_prob(Z))
 
-p3 = []
-#print BeliefsMapStr(p, w, landmarks, [myrobot.x, myrobot.y], world_size)
+    w_max = max(w)
+    p3 = []
+    index = int(floor(random.random() * N))
+    b = 0
+    for i in range(N):
+        b += random.random() * w_max
+        while w[index] < b:
+            b -= w[index]
+            index = (index + 1) % N
+        p3.append(p[index])
 
-w_max = max(w)
+    p = p3
+    show_generation(myrobot)
 
-index = int(floor(random.random() * N))
-b = 0
-for i in range(N):
-    b += random.random() * w_max
-    while w[index] < b:
-        b -= w[index]
-        index = (index + 1) % N
-    p3.append(p[index])
-
-p = p3
-show_generation(myrobot)
-#print BeliefsMapStr(p, w, landmarks, [myrobot.x, myrobot.y], world_size)
 print p #please leave this print statement here for grading!
