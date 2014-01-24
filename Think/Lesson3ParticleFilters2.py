@@ -22,11 +22,21 @@ def Gaussian(mu, sigma, x):
     return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
 
 
-class Arrow:
-    def __init__(self):
-        self.x = random.random() * world_size
-        self.y = random.random() * world_size
-        self.orientation = random.random() * 2.0 * pi
+class Point(object):
+    def __init__(self, x=random.random() * world_size, y=random.random() * world_size):
+        self.x = x
+        self.y = y
+
+    # Abstand der Startpunkte
+    def distance(self, arrow):
+        return sqrt((self.x - arrow.x) ** 2 + (self.y - arrow.y) ** 2)
+
+
+class Arrow(Point):
+    def __init__(self, x=random.random() * world_size, y=random.random() * world_size, o=random.random() * 2.0 * pi):
+        self.x = x
+        self.y = y
+        self.orientation = o
 
     # copy constructor
     def copy(self):
@@ -46,6 +56,7 @@ class Arrow:
         self.y += (sin(self.orientation) * dist)
         self.x %= world_size    # cyclic truncate
         self.y %= world_size
+        return self
 
     #
     # Liefert Vector v = [v1, v2] fuer den gilt
@@ -58,21 +69,29 @@ class Arrow:
         b = np.array([[arrow.x - self.x], [arrow.y - self.y]])
         #print a
         #print b
-        v = np.linalg.solve(a, b)
-        print v
-        return "v=" + str(v)
+        try:
+            v = np.linalg.solve(a, b)
+            #print "v=" + str(v)
+            return v
+        except np.linalg.LinAlgError:
+                return None, None
 
+    # liefert Koordinaten des Schnittpunkts
     def intersect(self, arrow):
+        #print self.collision_vector(arrow)
         (v1, v2) = self.collision_vector(arrow)
-        arr = self.copy()
-        arr.move(0, v1)
-        return arr.x, arr.y
+        if v1 is None:
+            return None
+        else:
+            arr = self.copy()
+            arr.move(0, v1)
+            return arr.x, arr.y
 
     def __repr__(self):
         return 'Arrow[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
 
 
-class BaseRobot:
+class BaseRobot(Arrow):
     def __init__(self):
         self.x = random.random() * world_size
         self.y = random.random() * world_size
@@ -103,22 +122,26 @@ class BaseRobot:
         if forward < 0:
             raise ValueError, 'Robot cant move backwards'
 
-        # turn, and add randomness to the turning command
-        orientation = self.orientation + float(turn) + random.gauss(0.0, self.turn_noise)
-        orientation %= 2 * pi
-
-        # move, and add randomness to the motion command
-        dist = float(forward) + random.gauss(0.0, self.forward_noise)
-        x = self.x + (cos(orientation) * dist)
-        y = self.y + (sin(orientation) * dist)
-        x %= world_size    # cyclic truncate
-        y %= world_size
-
-        # set particle
-        res = Robot()
-        res.set(x, y, orientation)
-        res.set_noise(self.forward_noise, self.turn_noise, self.sense_noise)
-        return res
+        turn = float(turn) + random.gauss(0.0, self.turn_noise)
+        forward = float(forward) + random.gauss(0.0, self.forward_noise)
+        return super(BaseRobot, self).move(turn, forward)
+        #
+        # # turn, and add randomness to the turning command
+        # orientation = self.orientation + float(turn) + random.gauss(0.0, self.turn_noise)
+        # orientation %= 2 * pi
+        #
+        # # move, and add randomness to the motion command
+        # dist = float(forward) + random.gauss(0.0, self.forward_noise)
+        # x = self.x + (cos(orientation) * dist)
+        # y = self.y + (sin(orientation) * dist)
+        # x %= world_size    # cyclic truncate
+        # y %= world_size
+        #
+        # # set particle
+        # res = Robot()
+        # res.set(x, y, orientation)
+        # res.set_noise(self.forward_noise, self.turn_noise, self.sense_noise)
+        # return res
 
     def __repr__(self):
         return '[x=%.6s y=%.6s orient=%.6s]' % (str(self.x), str(self.y), str(self.orientation))
@@ -143,6 +166,16 @@ class Robot(BaseRobot):
             prob *= Gaussian(dist, self.sense_noise, measurement[i])
         return prob
 
+    # copy constructor
+    def copy(self):
+        result = Robot()
+        result.x = self.x
+        result.y = self.y
+        result.orientation = self.orientation
+        result.forward_noise = self.forward_noise
+        result.turn_noise = self.turn_noise
+        result.sense_noise = self.sense_noise
+        return result
 
 def eval(r, p):
     sum = 0.0
@@ -159,14 +192,23 @@ def show_generation(myrobot):
     win.show()
 
 
-arrow1 = Arrow()
-arrow2 = Arrow()
-(r1, r2) = arrow1.collision_vector(arrow2)
-arrow1.move(0, r1)
-arrow2.move(0, r2)
+arrow1 = Arrow(50, 50, 3*pi/2)
 print arrow1
-print arrow2
-print arrow1.intersect(arrow2)
+
+wall1 = Arrow(0, 0, 0)
+wall2 = Arrow(0, 0, pi/2)
+wall3 = Arrow(world_size, world_size, pi)
+wall4 = Arrow(world_size, world_size, 3*pi/2)
+print wall1
+print wall2
+print wall3
+print wall4
+
+print "wall1     {}".format(arrow1.intersect(wall1))
+print "wall4     {}".format(arrow1.intersect(wall4))
+#print "wall1     {}".format(arrow1.intersect(wall2))
+#print "wall1     {}".format(arrow1.intersect(wall3))
+#print "wall1     {}".format(arrow1.intersect(wall4))
 print ".................."
 
 myrobot = Robot()
@@ -175,7 +217,7 @@ N = 1000
 p = []
 for i in range(N):
     x = Robot()
-    x.set_noise(0.05, 0.05, 5.0)
+    x.set_noise(0.01, 0.2, 1)
     p.append(x)
 
 win = Window()
@@ -186,9 +228,12 @@ T = 40
 for j in range(T):
     turn = random.random() * 2*pi
     forward = random.random() * 25
-    myrobot = myrobot.move(turn, forward)
+    myrobot.move(turn, forward)
 
-    p = [robot.move(turn, forward) for robot in p]
+    #p = [robot.move(turn, forward) for robot in p]
+    for robot in p:
+        robot.move(turn, forward)
+
     show_generation(myrobot)
 
     Z = myrobot.sense()
@@ -205,7 +250,7 @@ for j in range(T):
         while w[index] < b:
             b -= w[index]
             index = (index + 1) % N
-        p3.append(p[index])
+        p3.append(p[index].copy())
 
     p = p3
     show_generation(myrobot)
