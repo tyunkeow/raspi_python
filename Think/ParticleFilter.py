@@ -35,12 +35,12 @@ class Arrow(Point):
         self.orientation = o
 
     # copy constructor
-    def copy(self):
-        result = Arrow()
-        result.x = self.x
-        result.y = self.y
-        result.orientation = self.orientation
-        return result
+    def copy_to(self, arrow):
+        arrow.x = self.x
+        arrow.y = self.y
+        arrow.orientation = self.orientation
+        arrow.world_size = self.world_size
+        return arrow
 
     def move(self, turn, forward):
 
@@ -80,7 +80,8 @@ class Arrow(Point):
         if v1 is None:
             return None, None
         else:
-            arr = self.copy()
+            arr = Arrow()
+            self.copy_to(arr)
             arr.move(0, v1)
             return arr.x, arr.y
 
@@ -126,10 +127,7 @@ class BaseRobot(Arrow):
 
     # copy constructor
     def copy_to(self, base_robot):
-
-        base_robot.x = self.x
-        base_robot.y = self.y
-        base_robot.orientation = self.orientation
+        super(BaseRobot, self).copy_to(base_robot)
         base_robot.forward_noise = self.forward_noise
         base_robot.turn_noise = self.turn_noise
         base_robot.sense_noise = self.sense_noise
