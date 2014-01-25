@@ -8,13 +8,14 @@
 
 from math import *
 import random
-from ParticleFilter import BaseRobot, gaussian
+from ParticleFilter import Arrow, BaseRobot, gaussian, DEFAULT_WORLD_SIZE
 from RobotWindow import Window
 
 landmarks = [[20.0, 20.0], [80.0, 80.0], [20.0, 80.0], [80.0, 20.0]]
 
 
 class Robot(BaseRobot):
+
     def sense(self):
         Z = []
         for i in range(len(landmarks)):
@@ -34,15 +35,39 @@ class Robot(BaseRobot):
         return prob
 
 
+class Robot2(BaseRobot):
+    def __init__(self, x=None, y=None, o=None, world_size=DEFAULT_WORLD_SIZE):
+        super(Robot2, self).__init__(x, y, o, world_size)
+        self.wall_x = Arrow(0, 0, 0)  # == X-Achse
+        self.wall_y = Arrow(0, 0, pi/2)  # == Y-Achse
+
+    def distance_from_wall(self):
+        (dx1, dx2) = self.collision_vector(self.wall_x)
+        (dy1, dy2) = self.collision_vector(self.wall_y)
+        return min(dx1, dy1)
+
+    def sense(self):
+        return self.distance_from_wall() + random.gauss(0.0, self.sense_noise)
+
+    def measurement_prob(self, measurement):
+
+        # calculates how likely a measurement should be
+
+        prob = 1.0
+        dist = self.distance_from_wall()
+        prob *= gaussian(dist, self.sense_noise, measurement)
+        return prob
+
+
 class Simulator(object):
-    def __init__(self, robot, N=1000):
+    def __init__(self, robot, N=10000):
         self.win = Window()
         self.robot = robot
         self.N = N
         self.p = []
         for i in range(self.N):
-            r = Robot()
-            r.set_noise(0.1, 0.2, 5)
+            r = Robot2()
+            r.set_noise(0.1, 0.2, 1)
             self.p.append(r)
 
     def show_generation(self):
@@ -71,6 +96,8 @@ class Simulator(object):
             for i in range(self.N):
                 w.append(self.p[i].measurement_prob(Z))
 
+            # wheel
+            # biased? see http://forums.udacity.com/questions/3001328/an-on-unbiased-resampler#cs373
             w_max = max(w)
             p3 = []
             index = int(floor(random.random() * self.N))
@@ -80,13 +107,13 @@ class Simulator(object):
                 while w[index] < b:
                     b -= w[index]
                     index = (index + 1) % self.N
-                p3.append(self.p[index].copy_to(Robot()))
+                p3.append(self.p[index].copy_to(Robot2()))
 
             self.p = p3
             self.show_generation()
 
 
-myrobot = Robot()
+myrobot = Robot2()
 
 sim = Simulator(myrobot, 1000)
 
