@@ -12,6 +12,22 @@ def gaussian(mu, sigma, x):
     return exp(- ((mu - x) ** 2) / (sigma ** 2) / 2.0) / sqrt(2.0 * pi * (sigma ** 2))
 
 
+# compute estimated robot position from a particle set
+def get_robot_position(p):
+    x = 0.0
+    y = 0.0
+    orientation = 0.0
+    for i in range(len(p)):
+        x += p[i].x
+        y += p[i].y
+        # orientation is tricky because it is cyclic. By normalizing
+        # around the first particle we are somewhat more robust to
+        # the 0=2pi problem
+        orientation += (((p[i].orientation - p[0].orientation + pi) % (2.0 * pi))
+                        + p[0].orientation - pi)
+    return [x / len(p), y / len(p), orientation / len(p)]
+
+
 class Point(object):
     def __init__(self, x=None, y=None, world_size=DEFAULT_WORLD_SIZE):
         if x is None:
