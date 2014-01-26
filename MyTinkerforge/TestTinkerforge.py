@@ -1,20 +1,24 @@
-
-HOST='192.168.178.20'
-PORT=4223
-UID_MT='jS3'
-UID_US='jAW'
+HOST = '192.168.178.20'
+PORT = 4223
+UID_MT = 'jS3'
+UID_US = 'jAW'
 
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_multi_touch import MultiTouch
 from tinkerforge.bricklet_distance_us import DistanceUS
 from time import sleep
+from TinkerforgeStack import PiTinkerforgeStack
 
-con = IPConnection()
-mt = MultiTouch(UID_MT, con)
-us = DistanceUS(UID_US, con)
-con.connect(HOST, PORT)
+# con = IPConnection()
+# mt = MultiTouch(UID_MT, con)
+# us = DistanceUS(UID_US, con)
+# #ir = DistanceIR(UID_IR, con)
+# con.connect(HOST, PORT)
 
-def register_distance_us(callback, threshold):
+
+def register_distance_us(stack, callback, threshold):
+    us = stack.distance_us_1
+
     us.set_debounce_period(1000)
     us.set_distance_callback_period(500)
     us.register_callback(us.CALLBACK_DISTANCE_REACHED, callback)
@@ -23,14 +27,28 @@ def register_distance_us(callback, threshold):
     print "Moving averag is {}".format(us.get_moving_average())
     us.set_distance_callback_threshold('<', threshold, 0)
 
-def register_multi_touch(callback):
+def register_distance_ir(stack, callback, threshold):
+    ir = stack.distance_ir_1
+
+    ir.set_debounce_period(500)
+    ir.set_distance_callback_period(0)
+    ir.register_callback(ir.CALLBACK_DISTANCE_REACHED, callback)
+    print "Callback for distance < {}".format(threshold)
+    #ir.set_moving_average(20)
+    #print "Moving averag is {}".format(us.get_moving_average())
+    ir.set_distance_callback_threshold('<', threshold, 0)
+
+
+def register_multi_touch(stack, callback):
     #if callback == None:
     #    raise Exception
+    mt = stack.multi_touch_1
     mt.register_callback(mt.CALLBACK_TOUCH_STATE, callback)
+
 
 def callback_touch_state(touch_state):
     s = ''
-    if touch_state & (1<<12):
+    if touch_state & (1 << 12):
         s += "In prox, "
 
     if (touch_state & 0xFFF) == 0:
@@ -38,10 +56,18 @@ def callback_touch_state(touch_state):
     else:
         s += "electrodes "
         for i in range(12):
-            if touch_state & (1<<i):
+            if touch_state & (1 << i):
                 s += str(i) + ' '
     print s
 
+
+def callback_distance_ir(distance):
+    print "Distance is {} cm".format(distance/10)
+
 if __name__ == "__main__":
-    register_multi_touch(callback_touch_state)  
+    stack = PiTinkerforgeStack()
+    stack.connect()
+
+    #register_multi_touch(stack, callback_touch_state)
+    register_distance_ir(stack, callback_distance_ir, 220)
     sleep(30) 
