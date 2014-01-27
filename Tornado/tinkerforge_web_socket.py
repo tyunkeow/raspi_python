@@ -1,7 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-from MyTinkerforge import tinkerforge_stack
+from my_tinkerforge import tinkerforge_stack
 
 TIMEOUT = 1000
 PORT = 8889
