@@ -1,5 +1,5 @@
 import unittest
-from thinkx.particle_filter import *
+from think.particle_filter import *
 
 
 class TestArrow(unittest.TestCase):
