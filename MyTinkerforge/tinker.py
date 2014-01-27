@@ -3,18 +3,8 @@ PORT = 4223
 UID_MT = 'jS3'
 UID_US = 'jAW'
 
-from tinkerforge.ip_connection import IPConnection
-from tinkerforge.bricklet_multi_touch import MultiTouch
-from tinkerforge.bricklet_distance_us import DistanceUS
 from time import sleep
 from tinkerforge_stack import PiTinkerforgeStack
-
-# con = IPConnection()
-# mt = MultiTouch(UID_MT, con)
-# us = DistanceUS(UID_US, con)
-# #ir = DistanceIR(UID_IR, con)
-# con.connect(HOST, PORT)
-
 
 def register_distance_us(stack, callback, threshold):
     us = stack.distance_us_1
