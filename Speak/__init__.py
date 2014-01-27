@@ -1,4 +1,4 @@
-import Text2Wav
-import Insulter
-import WetterNuernberg
-import BusAbfahrt
+import text2wav
+import insulter
+import wetter_nuernberg
+import bus_abfahrt

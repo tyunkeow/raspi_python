@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import feedparser
-from Text2Wav import googleSpeak
+from text2wav import googleSpeak
 
 codes = {
 0: "tornado",

@@ -1,9 +1,9 @@
 #!/usr/bin/python
-# Insulter.py
+# insulter.py
 
 import json
 import random
-from Text2Wav import text2wav, play_wav
+from text2wav import text2wav, play_wav
 
 
 ins_data = {
