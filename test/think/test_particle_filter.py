@@ -55,13 +55,24 @@ class TestArrow(unittest.TestCase):
         print "wall1 intersection:    {}".format(schnittp_y)
 
 
-# class TestDiscreteDistribution(unittest.TestCase):
-#
-#     def test_sampling(self):
-#         dd = DiscreteDistribution([1, 2, 3, 4, 5])
-#         sample = dd.sample(100)
-#         print sample
-#         #assert
+class TestDiscreteDistribution(unittest.TestCase):
+
+    def test_sampling(self):
+        w = [25, 10, 5, 60]
+        dd = DiscreteDistribution(w)  # 0=>25%, 1=>10%, 2=>5%, 3=>60%
+
+        sample_size = 1000
+        sample = dd.sample(sample_size)
+        sample.sort()
+        two = [x for x in sample if x == 2]
+        assert len(two) < 150
+
+        for i in range(len(w)):
+            x = len([x for x in sample if x == i])
+            print x
+            print "Sample contains {} % of element {}.".format(float(x)*100 / sample_size, i)
+        print sample
+        #assert
 
 
 if __name__ == "__main__":
