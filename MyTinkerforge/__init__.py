@@ -1,1 +1,1 @@
-import TinkerforgeStack
+import tinkerforge_stack

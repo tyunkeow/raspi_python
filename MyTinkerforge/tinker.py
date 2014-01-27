@@ -7,7 +7,7 @@ from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_multi_touch import MultiTouch
 from tinkerforge.bricklet_distance_us import DistanceUS
 from time import sleep
-from TinkerforgeStack import PiTinkerforgeStack
+from tinkerforge_stack import PiTinkerforgeStack
 
 # con = IPConnection()
 # mt = MultiTouch(UID_MT, con)

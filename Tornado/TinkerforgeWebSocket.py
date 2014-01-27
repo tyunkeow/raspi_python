@@ -1,7 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
-from MyTinkerforge import TinkerforgeStack
+from MyTinkerforge import tinkerforge_stack
 
 TIMEOUT = 1000
 PORT = 8889
@@ -48,7 +48,7 @@ class MyApp(tornado.web.Application):
 
         threshold = dist_20
 
-        self.tinkerforge_stack = TinkerforgeStack.PiTinkerforgeStack()
+        self.tinkerforge_stack = tinkerforge_stack.PiTinkerforgeStack()
         self.tinkerforge_stack.connect()
 
         us = self.tinkerforge_stack.distance_us_1
