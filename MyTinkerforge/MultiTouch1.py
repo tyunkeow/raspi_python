@@ -1,7 +1,7 @@
 #
 # MultiTouch1
 #
-from TestTinkerforge import register_multi_touch
+from tinker import register_multi_touch
 from time import sleep
 
 def touch(touch_state):
