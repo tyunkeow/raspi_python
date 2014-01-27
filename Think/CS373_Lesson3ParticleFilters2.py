@@ -8,8 +8,8 @@
 
 from math import *
 import random
-from ParticleFilter import Arrow, BaseRobot, gaussian, DEFAULT_WORLD_SIZE
-from RobotWindow import Window
+from particle_filter import Arrow, BaseRobot, gaussian, DEFAULT_WORLD_SIZE
+from robot_window import Window
 
 landmarks = [[20.0, 20.0], [80.0, 80.0], [20.0, 80.0], [80.0, 20.0]]
 
