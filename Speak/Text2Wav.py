@@ -5,11 +5,6 @@ import base64
 import time
 from pydub import AudioSegment
 
-pygame.mixer.init()
-#pygame.mixer.pre_init(44100, 16, 2, 4096)
-#pygame.init()
-pygame.display.init()
-pygame.display.set_mode((640,480))
 
 DEFAULT_VOLUME = 50
 DEFAULT_SPEED = 1
@@ -31,8 +26,11 @@ def text2wav_google(text, filename, overwrite=False):
     else:
         url = "http://translate.google.com/translate_tts?tl=de&q=" + text
         #os.system(MPLAYER + ' -ao pcm:file={} -speed {} -volume {} -noconsolecontrols "{}"'.format(filename, speed, volume, url))
-        user_agent = '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.73.11 (KHTML, like Gecko) Version/6.1.1 Safari/537.73.11"'
+        user_agent = '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.73.11 (KHTML, like Gecko) ' \
+                     'Version/6.1.1 Safari/537.73.11"'
         os.system('wget --user-agent {} -O {} "{}"'.format(user_agent, filename, url))
+        # TODO use Timestamp
+        time.sleep(500)  # avoid getting blocked by google
         print "Soundfile written to " + filename
 
 
@@ -49,7 +47,8 @@ def get_filename(text):
 
 
 def digit2text(digit):
-    digit_words = [ "null", "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwoelf" ]
+    digit_words = [ "null", "eins", "zwei", "drei", "vier", "fuenf", "sechs", "sieben", "acht", "neun", "zehn", "elf",
+                    "zwoelf" ]
     return digit_words[digit]
 
 
@@ -80,7 +79,7 @@ def speak(text, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED):
 def play_wav(filename):
     filename = os.path.expanduser(filename)
     print "Playing file " + str(filename)
-    if True:
+    if False:
         #wav = AudioSegment.from_wav(filename)
 
         f = open(filename, "rb")
@@ -95,7 +94,8 @@ def play_wav(filename):
         pygame.mixer.music.stop()
         print "play_wav end"
     else:
-        os.system('aplay -D sysdefault:CARD=Device {}'.format(filename))
+        #os.system('aplay -D sysdefault:CARD=Device {}'.format(filename))
+        os.system('afplay {}'.format(filename))
 
 
 def build_word_db(overwrite=False):
@@ -105,6 +105,11 @@ def build_word_db(overwrite=False):
         text2wav(word, filename, overwrite)
 
 if __name__ == "__main__":
+    pygame.mixer.init()
+    #pygame.mixer.pre_init(44100, 16, 2, 4096)
+    #pygame.init()
+    pygame.display.init()
+    pygame.display.set_mode((640,480))
     build_word_db()
     speak(15)
     print "speak"
