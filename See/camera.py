@@ -4,7 +4,7 @@ from time import sleep
 camera = Camera(prop_set={'width':320, 'height':240})
 display = Display(resolution=(320, 240))
 
-mustacheImage = Image("/home/pi/Mustache.jpg")
+mustacheImage = Image("/Users/jharms/Desktop/Mustache.jpg")
 mustacheImage = mustacheImage.resize(w=120, h=80)
 stacheMask = mustacheImage.createBinaryMask(color1=(10,10,10), color2=(255,255,255))
 stacheMask = stacheMask.invert()
@@ -12,6 +12,7 @@ stacheMask = stacheMask.invert()
 
 def mustachify(frame):
     faces = None
+    print frame.listHaarFeatures()
     faces = frame.findHaarFeatures('face')
     if faces:
         for face in faces:
