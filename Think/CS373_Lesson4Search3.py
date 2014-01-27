@@ -50,7 +50,7 @@ def search():
 
     x = init[0]
     y = init[1]
-    g = 0
+    g = 1
 
     open = [[g, x, y]]
 
@@ -79,11 +79,29 @@ def search():
                         if closed[x2][y2] == 0 and grid[x2][y2] == 0:
                             g2 = g + cost
                             open.append([g2, x2, y2])
-                            closed[x2][y2] = 1
-                            expand[x2][y2] = delta_name[i]
+                            closed[x2][y2] = g2
+
+    #expand[x2][y2] = delta_name[i]
+    print g, x, y
+    expand[x][y] = '*'
+
+    while g > 1:
+        for i in range(len(delta)):
+            x2 = x + delta[i][0] * -1
+            y2 = y + delta[i][1] * -1
+            if x2 >= 0 and x2 < len(grid) and y2 >=0 and y2 < len(grid[0]):
+                if 0 < closed[x2][y2] < g:
+                    g = closed[x2][y2]
+                    x, y = x2, y2
+                    expand[x2][y2] = delta_name[i]
+                    break
+
+    for i in range(len(closed)):
+        print closed[i]
+
     for i in range(len(expand)):
         print expand[i]
-    return # make sure you return the shortest path.
+    return expand # make sure you return the shortest path.
 
-print search()
+search()
 
