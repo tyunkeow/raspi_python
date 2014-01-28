@@ -234,7 +234,7 @@ def create_insult_audio_db():
 
 
 if __name__ == "__main__":
-    #create_insult_audio_db()
+    create_insult_audio_db()
 
     insult = get_insult(-1, -1, -1)
     print insult
