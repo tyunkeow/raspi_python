@@ -105,13 +105,13 @@ class Window2:
         while True:
             self.dot((x0, y0), 0, color)
             if self.img.getPixel(x0, y0) == (255, 255, 255):
-                break
+                return (x0, y0)
             if x0 == x1 and y0 == y1:
                 break
             e2 = 2*err
             if e2 > -dy:
                 err = err - dy
-                x0 = x0 + sx
+                x0 += sx
 
             if x0 == x1 and y0 == y1:
                 self.dot((x0,y0), 0, color)
@@ -119,7 +119,8 @@ class Window2:
 
             if e2 < dx:
                 err = err + dx
-                y0 = y0 + sy
+                y0 += sy
+        return None
 
     def wait_for_mouse(self):
         while True:
@@ -139,7 +140,9 @@ if __name__ == "__main__":
         b = (500, 700)
         w.dot_red(a)
         w.dot_red(b)
-        w.line(a, b)
+        p = w.line(a, b)
+        if p is not None:
+            print "Wall sensed at ", p
         w.show()
         #time.sleep(500)
         w.clear_dl()
