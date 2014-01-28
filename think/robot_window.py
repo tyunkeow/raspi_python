@@ -1,5 +1,6 @@
 from SimpleCV import Image, Display, Color, pg
 import time
+import os
 
 class Window:
     world_size = 100
@@ -44,6 +45,102 @@ class Window:
                     return
 
 
+class Window2:
+    generation = 0
+
+    def __init__(self, filename):
+        filename = os.path.expanduser(filename)
+        self.img = Image(filename)
+        self.img_size = self.max_x, self.max_y = self.img.width, self.img.height
+        self.display = Display(self.img_size)
+        self.img.save(self.display)
+
+    def dot(self, p, size=0, color=Color.WHITE):
+        x, y = int(round(p[0])), int(round(p[1]))
+        #print "Drawing robot particle at {}, {}".format(x, y)
+        self.img.dl().circle((x, y), size, color, filled=True)
+
+    def dot_red(self, p, color=Color.RED):
+        self.dot(p, 2, color)
+
+    def dots(self, coords, size=0, color=Color.WHITE):
+        for (x, y) in coords:
+            self.dot(x, y, size, color)
+
+    def clear(self):
+        self.img = Image(self.img_size)
+        #self.display.clear()
+        self.img.save(self.display)
+
+    def clear_dl(self):
+        self.img.clearLayers()
+        self.img.save(self.display)
+
+    def show(self):
+        self.img.save(self.display)
+        self.generation += 1
+        print "Generation = {}".format(self.generation)
+        self.wait_for_mouse()
+        print "Mouse pressed!"
+
+    def line(self, a, b):
+        color = Color.BLUE
+        #self.img.drawLine(a, b, Color.WHITE, 1)
+        #if a[0] < b[0] and a[1] < b[1]:
+        x0, y0 = a
+        x1, y1 = b
+        dx = abs(x1-x0)
+        dy = abs(y1-y0)
+        if x0 < x1:
+            sx = 1
+        else:
+            sx = -1
+
+        if y0 < y1:
+            sy = 1
+        else:
+            sy = -1
+        err = dx-dy
+
+        while True:
+            self.dot((x0, y0), 0, color)
+            if self.img.getPixel(x0, y0) == (255, 255, 255):
+                break
+            if x0 == x1 and y0 == y1:
+                break
+            e2 = 2*err
+            if e2 > -dy:
+                err = err - dy
+                x0 = x0 + sx
+
+            if x0 == x1 and y0 == y1:
+                self.dot((x0,y0), 0, color)
+                break
+
+            if e2 < dx:
+                err = err + dx
+                y0 = y0 + sy
+
+    def wait_for_mouse(self):
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.MOUSEBUTTONDOWN:
+                    print event
+                    #self.clear()
+                    return
 
 
+if __name__ == "__main__":
+    w = Window2("../data/images/map1.bmp")
+    #w.dot_red(90, 90)
+    for i in range(0, 700, 50):
+        print "sfdhgfhsh", i
+        a = (100+i, 100)
+        b = (500, 700)
+        w.dot_red(a)
+        w.dot_red(b)
+        w.line(a, b)
+        w.show()
+        #time.sleep(500)
+        w.clear_dl()
 
