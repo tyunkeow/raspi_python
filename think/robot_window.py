@@ -1,6 +1,7 @@
 from SimpleCV import Image, Display, Color, pg
 import time
 import os
+from math import *
 
 class Window:
     world_size = 100
@@ -55,17 +56,22 @@ class Window2:
         self.display = Display(self.img_size)
         self.img.save(self.display)
 
-    def dot(self, p, size=0, color=Color.WHITE):
+    def dot(self, p, color=Color.WHITE, size=0):
         x, y = int(round(p[0])), int(round(p[1]))
         #print "Drawing robot particle at {}, {}".format(x, y)
-        self.img.dl().circle((x, y), size, color, filled=True)
+        if x < 0 or x >= self.max_x:
+            print "Oh my god!"
+        if y < 0 or y >= self.max_y:
+            print "Oh shit!"
+        else:
+            self.img.dl().circle(center=(x, y), radius=size, color=color, width=1, filled=True)
 
     def dot_red(self, p, color=Color.RED):
-        self.dot(p, 2, color)
+        self.dot(p, color, 2)
 
-    def dots(self, coords, size=0, color=Color.WHITE):
+    def dots(self, coords, color=Color.WHITE, size=0):
         for (x, y) in coords:
-            self.dot(x, y, size, color)
+            self.dot(x, y, color, size)
 
     def clear(self):
         self.img = Image(self.img_size)
@@ -83,8 +89,27 @@ class Window2:
         self.wait_for_mouse()
         print "Mouse pressed!"
 
-    def line(self, a, b):
-        color = Color.BLUE
+    def draw_robot(self, position, orientation):
+        color = Color.RED
+        #self.img.drawRectangle(p[0], p[1], 20, 40, color, 1)
+        self.dot(position, color, 2)
+
+        b = self.vector(position, orientation, 20)
+        self.vector(b, orientation - 3*pi/4, 8)
+        self.vector(b, orientation + 3*pi/4, 8)
+
+    def vector(self, x, orientation, length, color=Color.FORESTGREEN):
+        bx = int(round(x[0] + cos(orientation) * length))
+        by = int(round(x[1] + sin(orientation) * length))
+        #self.dot_red((bx, by))
+        self.line(x, (bx, by), detect_collision=False, color=color)
+        return bx, by
+
+    # a = startpunkt, b = endpunkt
+    def line(self, a, b, detect_collision=True, color=Color.BLUE):
+        """http://en.wikipedia.org/wiki/Bresenham's_line_algorithm"""
+
+
         #self.img.drawLine(a, b, Color.WHITE, 1)
         #if a[0] < b[0] and a[1] < b[1]:
         x0, y0 = a
@@ -103,8 +128,10 @@ class Window2:
         err = dx-dy
 
         while True:
-            self.dot((x0, y0), 0, color)
-            if self.img.getPixel(x0, y0) == (255, 255, 255):
+            if x0 < 0 or x0 >= self.max_x or y0 < 0  or y0 >= self.max_y:
+                break
+            self.dot((x0, y0), color, 0)
+            if detect_collision and self.img.getPixel(x0, y0) == (255, 255, 255):
                 return (x0, y0)
             if x0 == x1 and y0 == y1:
                 break
@@ -114,7 +141,7 @@ class Window2:
                 x0 += sx
 
             if x0 == x1 and y0 == y1:
-                self.dot((x0,y0), 0, color)
+                self.dot((x0,y0), color, 0)
                 break
 
             if e2 < dx:
@@ -135,10 +162,11 @@ if __name__ == "__main__":
     w = Window2("../data/images/map1.bmp")
     #w.dot_red(90, 90)
     for i in range(0, 700, 50):
-        print "sfdhgfhsh", i
+        print "step", i
         a = (100+i, 100)
         b = (500, 700)
-        w.dot_red(a)
+        print pi*i/700
+        w.draw_robot(a, 2*pi*i/700)
         w.dot_red(b)
         p = w.line(a, b)
         if p is not None:
