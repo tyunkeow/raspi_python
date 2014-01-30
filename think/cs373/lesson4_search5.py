@@ -11,10 +11,11 @@
 
 # ----------
 
-grid = [[0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0],
+grid = [[0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0],
+        [0, 0, 1, 1, 1, 0],
         [0, 0, 0, 0, 1, 0]]
 
 init = [0, 0]
@@ -33,23 +34,33 @@ cost_step = 1 # the cost associated with moving from a cell to an adjacent one.
 # insert code below
 # ----------------------------------------
 
-def test_adjacent(x, y, result, callback):
+# Nachbarn, die noch nicht besucht und innerhalb des Koordsystems liegen
+def get_adjacent_cells(distance, x, y, min_dist_grid):
+    result = []
     for i in range(len(delta)):
         x2 = x + delta[i][0]
         y2 = y + delta[i][1]
-        if x2 >= 0 and x2 < len(grid) and y2 >=0 and y2 < len(grid[0]):
-            if grid[x2][y2] == 0 and result[x2][y2] == 99:
-                callback(x2, y2)
+        if 0 <= x2 < len(grid) and 0 <= y2 < len(grid[0]):
+            if grid[x2][y2] == 0 and min_dist_grid[x2][y2] > distance:
+                result.append((x2, y2))
+    return result
 
-def compute_value2(distance, current_cell, result):
-    test_adjacent(current_cell[0], current_cell[1], result, lambda x2, y2: result[x2][y2]=distance+1)
 
-    return value #make sure your function returns a grid of values as demonstrated in the previous video.
+def compute_value2(distance, x, y, min_dist_grid):
+    cells = get_adjacent_cells(distance, x, y, min_dist_grid)
+    for (xx, yy) in cells:
+        min_dist_grid[xx][yy] = distance + cost_step
+    for (xx, yy) in cells:
+        compute_value2(distance+1, xx, yy, min_dist_grid)
+
 
 def compute_value():
     result = [[99 for row in range(len(grid[0]))] for col in range(len(grid))]
-    current_cell = goal
-    return compute_value2(0, current_cell, result)
+    #print result
+    result[goal[0]][goal[1]] = 0
+    compute_value2(0, goal[0], goal[1], result)
+    return result
 
-
-
+r = compute_value()
+for l in r:
+    print l
