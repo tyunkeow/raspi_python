@@ -3,7 +3,7 @@ from math import *
 import random
 import numpy as np
 
-DEFAULT_WORLD_SIZE = 100.
+DEFAULT_WORLD_SIZE = (100., 100.)
 
 
 # Wahrscheinlichkeit für x bei Gausscher Verteilung mit Mittelwert mu und
@@ -57,11 +57,11 @@ def get_robot_position(p):
 class Point(object):
     def __init__(self, x=None, y=None, world_size=DEFAULT_WORLD_SIZE):
         if x is None:
-            x = random.random() * world_size
-        self.x = x
+            x = random.random() * world_size[0]
+        self.x = int(x)
         if y is None:
-            y = random.random() * world_size
-        self.y = y
+            y = random.random() * world_size[1]
+        self.y = int(y)
         self.world_size = world_size
 
     # Abstand der Startpunkte
@@ -101,10 +101,10 @@ class Arrow(Point):
         self.orientation %= 2 * pi
 
         dist = float(forward)
-        self.x += (cos(self.orientation) * dist)
-        self.y += (sin(self.orientation) * dist)
-        self.x %= self.world_size    # cyclic truncate
-        self.y %= self.world_size
+        self.x += int(cos(self.orientation) * dist)
+        self.y += int(sin(self.orientation) * dist)
+        self.x %= self.world_size[0]    # cyclic truncate
+        self.y %= self.world_size[1]
         return self
 
     #

@@ -3,6 +3,7 @@ import time
 import os
 from math import *
 
+
 class Window:
     world_size = 100
     img_size = (world_size, world_size)
@@ -57,12 +58,14 @@ class Window2:
         self.img.save(self.display)
 
     def dot(self, p, color=Color.WHITE, size=0):
-        x, y = int(round(p[0])), int(round(p[1]))
+        x, y = p[0], p[1]
         #print "Drawing robot particle at {}, {}".format(x, y)
         if x < 0 or x >= self.max_x:
-            print "Oh my god!"
+            print "Oh my god! x=", x
+            raise RuntimeError
         if y < 0 or y >= self.max_y:
-            print "Oh shit!"
+            print "Oh shit! y=", y
+            raise RuntimeError
         else:
             self.img.dl().circle(center=(x, y), radius=size, color=color, width=1, filled=True)
 
@@ -71,7 +74,7 @@ class Window2:
 
     def dots(self, coords, color=Color.WHITE, size=0):
         for (x, y) in coords:
-            self.dot(x, y, color, size)
+            self.dot((x, y), color, size)
 
     def clear(self):
         self.img = Image(self.img_size)
@@ -94,16 +97,20 @@ class Window2:
         #self.img.drawRectangle(p[0], p[1], 20, 40, color, 1)
         self.dot(position, color, 2)
 
-        b = self.vector(position, orientation, 20)
-        self.vector(b, orientation - 3*pi/4, 8)
-        self.vector(b, orientation + 3*pi/4, 8)
+        length = 20
+        bx = int(round(position[0] + cos(orientation) * length))
+        by = int(round(position[1] + sin(orientation) * length))
 
-    def vector(self, x, orientation, length, color=Color.FORESTGREEN):
+        self.vector(position, orientation, length, detect_collision=False, color=color)
+        self.vector((bx, by), orientation - 3*pi/4, length=8, detect_collision=False, color=color)
+        self.vector((bx, by), orientation + 3*pi/4, length=8, detect_collision=False, color=color)
+
+    def vector(self, x, orientation, length, detect_collision=True, color=Color.FORESTGREEN):
         bx = int(round(x[0] + cos(orientation) * length))
         by = int(round(x[1] + sin(orientation) * length))
         #self.dot_red((bx, by))
-        self.line(x, (bx, by), detect_collision=False, color=color)
-        return bx, by
+        return self.line(x, (bx, by), detect_collision=detect_collision, color=color)
+        #return bx, by
 
     # a = startpunkt, b = endpunkt
     def line(self, a, b, detect_collision=True, color=Color.BLUE):
@@ -128,11 +135,11 @@ class Window2:
         err = dx-dy
 
         while True:
-            if x0 < 0 or x0 >= self.max_x or y0 < 0  or y0 >= self.max_y:
+            if x0 < 0 or x0 >= self.max_x or y0 < 0 or y0 >= self.max_y:
                 break
             self.dot((x0, y0), color, 0)
             if detect_collision and self.img.getPixel(x0, y0) == (255, 255, 255):
-                return (x0, y0)
+                return x0, y0
             if x0 == x1 and y0 == y1:
                 break
             e2 = 2*err
