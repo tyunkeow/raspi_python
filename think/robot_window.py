@@ -1,7 +1,9 @@
 from SimpleCV import Image, Display, Color, pg
 import time
 import os
+import numpy as np
 from math import *
+from profilehooks import profile
 
 
 class Window:
@@ -56,6 +58,11 @@ class Window2:
         self.img_size = self.max_x, self.max_y = self.img.width, self.img.height
         self.display = Display(self.img_size)
         self.img.save(self.display)
+        self.array_map = np.array([[0 for y in range(self.max_y)] for x in range(self.max_x)]) #), dtype=np.int32)
+        for x in range(self.max_x):
+            for y in range(self.max_y):
+                pixel = self.img.getPixel(x, y)
+                self.array_map[x][y] = (pixel == (255, 255, 255))
 
     def dot(self, p, color=Color.WHITE, size=0):
         x, y = p[0], p[1]
@@ -113,16 +120,20 @@ class Window2:
         #return bx, by
 
     # a = startpunkt, b = endpunkt
+    @profile
     def line(self, a, b, detect_collision=True, color=Color.BLUE):
         """http://en.wikipedia.org/wiki/Bresenham's_line_algorithm"""
 
 
-        #self.img.drawLine(a, b, Color.WHITE, 1)
-        #if a[0] < b[0] and a[1] < b[1]:
+        # performance => use local vars
+        max_x = self.max_x
+        max_y = self.max_y
+        array_map = self.array_map
+
         x0, y0 = a
         x1, y1 = b
         dx = abs(x1-x0)
-        dy = abs(y1-y0)
+        dy = -abs(y1-y0)
         if x0 < x1:
             sx = 1
         else:
@@ -132,23 +143,27 @@ class Window2:
             sy = 1
         else:
             sy = -1
-        err = dx-dy
+        err = dx+dy
 
         while True:
-            if x0 < 0 or x0 >= self.max_x or y0 < 0 or y0 >= self.max_y:
+            if x0 < 0 or x0 >= max_x or y0 < 0 or y0 >= max_y:
                 break
-            self.dot((x0, y0), color, 0)
-            if detect_collision and self.img.getPixel(x0, y0) == (255, 255, 255):
+            if color:
+                self.dot((x0, y0), color, 0)
+            #if detect_collision and self.img.getPixel(x0, y0) == (255, 255, 255):
+            if detect_collision and array_map[x0][y0]:
                 return x0, y0
             if x0 == x1 and y0 == y1:
                 break
             e2 = 2*err
-            if e2 > -dy:
-                err = err - dy
+
+            if e2 > dy:
+                err += dy
                 x0 += sx
 
             if x0 == x1 and y0 == y1:
-                self.dot((x0,y0), color, 0)
+                if color:
+                    self.dot((x0, y0), color, 0)
                 break
 
             if e2 < dx:
