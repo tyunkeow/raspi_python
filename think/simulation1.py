@@ -10,10 +10,10 @@ from math import *
 import random
 import time
 from SimpleCV import Color
-from think.particle_filter import Arrow, BaseRobot, gaussian, DEFAULT_WORLD_SIZE
+from think.particle_filter import Arrow, BaseRobot, gaussian, DiscreteDistribution, DEFAULT_WORLD_SIZE
 from think.robot_window import Window2
 import hello
-import numpy as np
+
 
 class Robot2(BaseRobot):
     def __init__(self, window, x=None, y=None, o=None):
@@ -80,8 +80,6 @@ def measurement_prob2(particles, measurement):
 
     w = []
     for p in particles:
-        #w.append(particles[i].measurement_prob(measurement))
-
         # calculates how likely a measurement should be
         result = 1.0
 
@@ -92,10 +90,11 @@ def measurement_prob2(particles, measurement):
             #print "Measurement was {} resulting in probability {}".format(measurement[i], prob)
             result *= prob
         w.append(result)
-        t2 = time.clock()
+    t2 = time.clock()
     print "Time for computing particle prob: ", round(t2-t1, 10)
 
     return w
+
 
 class Simulator(object):
     def __init__(self, N=10000):
@@ -135,32 +134,22 @@ class Simulator(object):
             print "Robot.sense()............"
             Z = self.robot.sense()
             print "Robot.sense() end"
+
             print "Computing weights..."
-            #w = []
-            #for i in range(self.N):
-            #    w.append(self.p[i].measurement_prob(Z))
             w = measurement_prob2(self.p, Z)
 
-            # wheel
-            # biased? see http://forums.udacity.com/questions/3001328/an-on-unbiased-resampler#cs373
-            print "Resampling..."
-            w_max = max(w)
-            p3 = []
-            index = int(floor(random.random() * self.N))
-            b = 0
-            indexes = [1 for x in range(len(self.p))]
-            for i in range(self.N):
-                b += random.random() * w_max
-                while w[index] < b:
-                    b -= w[index]
-                    index = (index + 1) % self.N
-                    indexes[index] += 1
-                p3.append(self.p[index].copy_to(Robot2(self.win)))
+            t1 = time.clock()
+            print "DD for {} elements ...".format(len(w))
+            dd = DiscreteDistribution(w, self.p)
+            t2 = time.clock()
+            p_new = dd.sample1(len(w))
+            t3 = time.clock()
+            print "Resampling done in {} seconds".format((t3-t2))
 
-            self.p = p3
-            #w.sort()
-            #print w
-            #print indexes
+            self.p = []
+            for particle in p_new:
+                self.p.append(particle.copy_to(Robot2(self.win)))
+            #self.p = p3
             self.show_generation()
 
 def show_probs(pos, measurement, noise):

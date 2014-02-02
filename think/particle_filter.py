@@ -2,6 +2,8 @@
 from math import *
 import random
 import numpy as np
+import time
+from profilehooks import profile
 
 DEFAULT_WORLD_SIZE = (100., 100.)
 
@@ -16,26 +18,53 @@ def gaussian(mu, sigma, x):
 # Wahrscheinlichkeitsverteilung für diskrete n (integer) aus einem Intervall 0..N
 class DiscreteDistribution:
     # prob n = weights[n]/sum(weights)
-    def __init__(self, weights):
+    def __init__(self, weights, values=None):
         self.weights = weights  # array
+        if values is None:
+            self.values = xrange(len(weights))
+        else:
+            assert len(values) == len(weights)
+            self.values = values
         self.max_weight = max(weights)
         self.normalizer = sum(weights)
+        print "Sum of weigths=", self.normalizer
 
     def probability(self, n):
         return self.weights[n] / self.normalizer
 
-    def sample(self, j):
+    @profile
+    def sample1(self, j):
+        n = len(self.weights)
+        print "Resampling {} elements ...".format(n)
+        t1 = time.clock()
+
         # wheel
         # biased? see http://forums.udacity.com/questions/3001328/an-on-unbiased-resampler#cs373
         result = []
-        index = int(floor(random.random() * len(self.weights)))
+        index = int(floor(random.random() * n))
         b = 0
         for i in range(j):
             b += random.random() * self.max_weight
             while self.weights[index] < b:
                 b -= self.weights[index]
-                index = (index + 1) % len(self.weights)
-            result.append(index)
+                index = (index + 1) % n
+            result.append(self.values[index])
+        t2 = time.clock()
+        print "Time for computing sample: ", round(t2-t1, 10)
+
+        return result
+
+    @profile
+    def sample2(self, j):
+        nw = [x / float(self.normalizer) for x in self.weights] #An array of the weights, cumulatively summed.
+        #print nw
+        cs = np.cumsum(nw)
+        #print "cs", cs
+
+        result = []
+        for i in range(j):
+            index = sum(cs < random.random()) #Find the index of the first weight over a random value.
+            result.append(self.values[index])
         return result
 
 # compute estimated robot position from a particle set
@@ -144,8 +173,8 @@ class Arrow(Point):
 
 
 class BaseRobot(Arrow):
-    def __init__(self, x=None, y=None, o=None, world_size=DEFAULT_WORLD_SIZE):
-        super(BaseRobot, self).__init__(x, y, o, world_size)
+    def __init__(self, x=None, y=None, orientation=None, world_size=DEFAULT_WORLD_SIZE):
+        super(BaseRobot, self).__init__(x, y, orientation, world_size)
         self.forward_noise = 0.0
         self.turn_noise = 0.0
         self.sense_noise = 0.0

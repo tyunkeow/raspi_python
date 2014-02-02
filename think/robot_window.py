@@ -120,7 +120,7 @@ class Window2:
         #return bx, by
 
     # a = startpunkt, b = endpunkt
-    @profile
+    #@profile
     def line(self, a, b, detect_collision=True, color=Color.BLUE):
         """http://en.wikipedia.org/wiki/Bresenham's_line_algorithm"""
 
