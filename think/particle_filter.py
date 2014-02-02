@@ -16,7 +16,8 @@ def gaussian(mu, sigma, x):
 
 
 # Wahrscheinlichkeitsverteilung für diskrete n (integer) aus einem Intervall 0..N
-class DiscreteDistribution:
+class DiscreteDistribution(object):
+
     # prob n = weights[n]/sum(weights)
     def __init__(self, weights, values=None):
         self.weights = weights  # array
@@ -27,6 +28,7 @@ class DiscreteDistribution:
             self.values = values
         self.max_weight = max(weights)
         self.normalizer = sum(weights)
+        self.weights = [w/float(self.normalizer) for w in self.weights]
         print "Sum of weigths=", self.normalizer
 
     def probability(self, n):
@@ -56,9 +58,9 @@ class DiscreteDistribution:
 
     @profile
     def sample2(self, j):
-        nw = [x / float(self.normalizer) for x in self.weights] #An array of the weights, cumulatively summed.
+        #nw = [x / float(self.normalizer) for x in self.weights] #An array of the weights, cumulatively summed.
         #print nw
-        cs = np.cumsum(nw)
+        cs = np.cumsum(self.weights)
         #print "cs", cs
 
         result = []
@@ -66,6 +68,11 @@ class DiscreteDistribution:
             index = sum(cs < random.random()) #Find the index of the first weight over a random value.
             result.append(self.values[index])
         return result
+
+    @profile
+    def sample3(self, j):
+        return np.random.choice(self.values, size=j, replace=True, p=self.weights)
+
 
 # compute estimated robot position from a particle set
 def get_robot_position(p):

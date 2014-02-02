@@ -118,11 +118,20 @@ class TestDiscreteDistribution(unittest.TestCase):
         w = [random.random()/10000000000000. for i in range(size)]
         dd = DiscreteDistribution(w)
 
-        sample = dd.sample1(size)
+        sample = dd.sample3(size)
         self.assertEqual(size, len(sample))
 
-if __name__ == "__main__":
-    TestArrow.main()
+
+class TestGaussian(unittest.TestCase):
+
+    def test_gaussian(self):
+        pos = 150
+        for noise in range(10, 30, 5):
+            for measurement in range(100, 200, 10):
+                prob = gaussian(pos, noise, measurement)
+                print "pos=", pos, "measurement=", measurement, "noise=", noise, " prob=", prob
+
+
 
 
 

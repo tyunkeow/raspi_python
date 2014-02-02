@@ -52,17 +52,24 @@ class Window:
 class Window2:
     generation = 0
 
-    def __init__(self, filename):
+    def __init__(self, filename, scale=1):
         filename = os.path.expanduser(filename)
         self.img = Image(filename)
-        self.img_size = self.max_x, self.max_y = self.img.width, self.img.height
-        self.display = Display(self.img_size)
-        self.img.save(self.display)
-        self.array_map = np.array([[0 for y in range(self.max_y)] for x in range(self.max_x)]) #), dtype=np.int32)
+        self.max_x, self.max_y = self.img.width, self.img.height
+        self.scale = scale
+
+        self.array_map = np.array([[0 for y in range(self.max_y)] for x in range(self.max_x)])
         for x in range(self.max_x):
             for y in range(self.max_y):
                 pixel = self.img.getPixel(x, y)
                 self.array_map[x][y] = (pixel == (255, 255, 255))
+
+        # scale image
+        self.img = self.img.resize(self.img.width*scale, self.img.height*scale)
+        self.img_size = self.img.width, self.img.height
+
+        self.display = Display(self.img_size)
+        self.img.save(self.display)
 
     def dot(self, p, color=Color.WHITE, size=0):
         x, y = p[0], p[1]
@@ -74,7 +81,7 @@ class Window2:
             print "Oh shit! y=", y
             raise RuntimeError
         else:
-            self.img.dl().circle(center=(x, y), radius=size, color=color, width=1, filled=True)
+            self.img.dl().circle(center=(x*self.scale, y*self.scale), radius=size, color=color, width=1, filled=True)
 
     def dot_red(self, p, color=Color.RED):
         self.dot(p, color, 2)
@@ -124,7 +131,6 @@ class Window2:
     def line(self, a, b, detect_collision=True, color=Color.BLUE):
         """http://en.wikipedia.org/wiki/Bresenham's_line_algorithm"""
 
-
         # performance => use local vars
         max_x = self.max_x
         max_y = self.max_y
@@ -146,13 +152,13 @@ class Window2:
         err = dx+dy
 
         while True:
-            if x0 < 0 or x0 >= max_x or y0 < 0 or y0 >= max_y:
+            if x0 <= 0 or x0 >= max_x or y0 <= 0 or y0 >= max_y:
                 break
             if color:
                 self.dot((x0, y0), color, 0)
             #if detect_collision and self.img.getPixel(x0, y0) == (255, 255, 255):
             if detect_collision and array_map[x0][y0]:
-                return x0, y0
+                break
             if x0 == x1 and y0 == y1:
                 break
             e2 = 2*err
@@ -162,14 +168,14 @@ class Window2:
                 x0 += sx
 
             if x0 == x1 and y0 == y1:
-                if color:
-                    self.dot((x0, y0), color, 0)
+                #if color:
+                #    self.dot((x0, y0), color, 0)
                 break
 
             if e2 < dx:
                 err = err + dx
                 y0 += sy
-        return None
+        return x0, y0
 
     def wait_for_mouse(self):
         while True:
@@ -179,21 +185,21 @@ class Window2:
                     #self.clear()
                     return
 
-
-if __name__ == "__main__":
-    w = Window2("../data/images/map1.bmp")
-    #w.dot_red(90, 90)
-    for i in range(0, 700, 50):
-        print "step", i
-        a = (100+i, 100)
-        b = (500, 700)
-        print pi*i/700
-        w.draw_robot(a, 2*pi*i/700)
-        w.dot_red(b)
-        p = w.line(a, b)
-        if p is not None:
-            print "Wall sensed at ", p
-        w.show()
-        #time.sleep(500)
-        w.clear_dl()
+#
+# if __name__ == "__main__":
+#     w = Window2("../data/images/map1.bmp")
+#     #w.dot_red(90, 90)
+#     for i in range(0, 700, 50):
+#         print "step", i
+#         a = (100+i, 100)
+#         b = (500, 700)
+#         print pi*i/700
+#         w.draw_robot(a, 2*pi*i/700)
+#         w.dot_red(b)
+#         p = w.line(a, b)
+#         if p is not None:
+#             print "Wall sensed at ", p
+#         w.show()
+#         #time.sleep(500)
+#         w.clear_dl()
 

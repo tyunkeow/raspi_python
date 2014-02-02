@@ -42,10 +42,12 @@ class Robot2(BaseRobot):
             by = int(round(y + sin(self.orientation + 2*pi*i/count) * 2000))
             if draw or random.random() < 0.01:
                 c2 = self.window.line((x, y), (bx, by), detect_collision=True, color=color)
+                if c2 is None:
+                    raise RuntimeError
             else:
                 c2 = hello.compute_distance(x, y, bx, by, self.window.array_map)
-            if c2 is None:
-                raise RuntimeError
+                if c2 is None:
+                    raise RuntimeError
             (x2, y2) = c2
 
             # pythagoras
@@ -85,7 +87,8 @@ def measurement_prob2(particles, measurement):
 
         distances = p.distance_from_wall()
         for i in range(len(measurement)):
-            prob = gaussian(distances[i], p.sense_noise, measurement[i])
+            #prob = gaussian(distances[i], p.sense_noise, measurement[i])
+            prob = gaussian(measurement[i], p.sense_noise, distances[i])
             #print "Particle at {}, {} has distance {} at sensor {}".format(self.x, self.y, distances[i], i)
             #print "Measurement was {} resulting in probability {}".format(measurement[i], prob)
             result *= prob
@@ -97,14 +100,15 @@ def measurement_prob2(particles, measurement):
 
 
 class Simulator(object):
-    def __init__(self, N=10000):
-        self.win = Window2("../data/images/map1.bmp")
+    def __init__(self, N=1000):
+        self.win = Window2("../data/images/map1-lowres.bmp", 5)
         self.robot = Robot2(self.win)
-        self.N = N
+
+        print "Creating {} particles...".format(N)
         self.p = []
-        for i in range(self.N):
+        for i in range(N):
             r = Robot2(self.win)
-            r.set_noise(0.2, 0.2, 50)
+            r.set_noise(5, 0.5, 5)
             self.p.append(r)
 
     def show_generation(self):
@@ -120,29 +124,28 @@ class Simulator(object):
 
         for j in range(T):
             turn = random.random() * 2 * pi
-            #turn = 0
             forward = random.random() * 25
             self.robot.move(turn, forward)
 
-            #p = [robot.move(turn, forward) for robot in p]
-            print "Robot.move()............."
+            print "Moving {} particles...".format(len(self.p))
             for robot in self.p:
                 robot.move(turn, forward)
 
             self.show_generation()
 
-            print "Robot.sense()............"
+            print "Robot.sense()..."
             Z = self.robot.sense()
             print "Robot.sense() end"
 
             print "Computing weights..."
             w = measurement_prob2(self.p, Z)
+            assert len(w) == len(self.p)
 
             t1 = time.clock()
             print "DD for {} elements ...".format(len(w))
             dd = DiscreteDistribution(w, self.p)
             t2 = time.clock()
-            p_new = dd.sample1(len(w))
+            p_new = dd.sample3(len(w))
             t3 = time.clock()
             print "Resampling done in {} seconds".format((t3-t2))
 
@@ -152,14 +155,9 @@ class Simulator(object):
             #self.p = p3
             self.show_generation()
 
-def show_probs(pos, measurement, noise):
-    prob = gaussian(pos, i, measurement)
-    print "pos=", pos, "measurement=", measurement, "noise=", noise, " prob=", prob
 
 if __name__ == "__main__":
-    sim = Simulator(20000)
+    sim = Simulator(10000)
     sim.simulate()
-    for pos in range(120, 160, 10):
-        for i in range(15, 25, 5):
-            show_probs(pos, 150, i)
+
 

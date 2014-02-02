@@ -24,8 +24,9 @@ static PyObject* compute_distance(PyObject* self, PyObject* args)
 
     //printf("Dimensionen=%d\n", PyArray_NDIM(map_array));
 
-    max_x = 1000; //(int)PyArray_DIM(map_array, 0);
-    max_y= 800; //(int)PyArray_DIM(map_array, 1);
+    max_x = (int)PyArray_DIM(map_array, 0);
+    max_y= (int)PyArray_DIM(map_array, 1);
+    //printf("max: %d %d\n", max_x, max_y);
 
     dx = abs(x1-x0);
     dy = -abs(y1-y0);
@@ -41,7 +42,7 @@ static PyObject* compute_distance(PyObject* self, PyObject* args)
     err = dx+dy;
 
     for(;;) {
-        if (x0 < 0 || x0 >= max_x || y0 < 0 || y0 >= max_y)
+        if (x0 <= 0 || x0 >= max_x || y0 <= 0 || y0 >= max_y)
             break;
         //printf("%d %d", x0, y0);
         long val = (long) PyArray_GETPTR2 (map_array, x0, y0);
@@ -77,6 +78,7 @@ static PyObject* compute_distance(PyObject* self, PyObject* args)
     // clean up refcount
     Py_DECREF(map_array);
     PyObject *ret = Py_BuildValue("ii", x0, y0);
+    printf("result collision coords: %d %d\n", x0, y0);
     return ret;
     //Py_RETURN_NONE;
 }
