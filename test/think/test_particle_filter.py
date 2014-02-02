@@ -1,4 +1,5 @@
 import unittest
+import time
 from think.particle_filter import *
 
 
@@ -10,6 +11,43 @@ class TestArrow(unittest.TestCase):
         self.wall_x = Arrow(0, 0, 0)  # == X-Achse
         self.wall_y = Arrow(0, 0, pi / 2)  # == Y-Achse
 
+    def test_base_robot_move(self):
+        """Test BaseRobot class"""
+        robot = BaseRobot(x=None, y=None, orientation=None, world_size=(110, 110))
+        robot.set_noise(0, 0, 0)
+        self.assertIsNotNone(robot.x)
+        self.assertIsNotNone(robot.y)
+
+        robot.set(50, 100, 0)
+        self.assertEqual(50, robot.x)
+        self.assertEqual(100, robot.y)
+
+        # 10 nach rechts
+        robot.move(0, 10)
+        self.assertEqual(60, robot.x)
+        self.assertEqual(100, robot.y)
+
+        # 9 nach oben
+        robot.move(pi/2, 9)
+        self.assertEqual(60, robot.x)
+        self.assertEqual(109, robot.y)
+
+        # Torus-Topologie
+        robot.move(0, 1)
+        self.assertEqual(60, robot.x)
+        self.assertEqual(0, robot.y)
+
+        # 10 nach links
+        robot.move(-1.5*pi, 10)
+        self.assertEqual(50, robot.x)
+        self.assertEqual(0, robot.y)
+
+        # diagonal move
+        robot.move(-0.75*pi, sqrt(5**2+5**2))
+        self.assertEqual(55, robot.x)
+        self.assertEqual(5, robot.y)
+
+
     def test_base_robot(self):
         """Test BaseRobot class"""
         robot = BaseRobot()
@@ -17,7 +55,9 @@ class TestArrow(unittest.TestCase):
 
         for j in range(5):
             turn = random.random() * 2 * pi
-            forward = random.random() * 25
+            forward = 25 + random.random() * 50
+            print "Turning robot {} by {} and moving forward by {}.".format(robot, turn, forward)
+            print "New orientation =", (turn + robot.orientation) % (2*pi)
             x1, y1 = robot.x, robot.y
             robot.move(turn, forward)
             x2, y2 = robot.x, robot.y
@@ -58,22 +98,28 @@ class TestArrow(unittest.TestCase):
 class TestDiscreteDistribution(unittest.TestCase):
 
     def test_sampling(self):
-        w = [25, 10, 5, 60]
+        w = [25, 10, 5, 60] # Gewichte sind gleichzeitig prozentzahlen (siehe asserts)
         dd = DiscreteDistribution(w)  # 0=>25%, 1=>10%, 2=>5%, 3=>60%
 
         sample_size = 1000
-        sample = dd.sample(sample_size)
-        sample.sort()
-        two = [x for x in sample if x == 2]
-        assert len(two) < 150
+        sample = dd.sample1(sample_size)
 
         for i in range(len(w)):
             x = len([x for x in sample if x == i])
             print x
-            print "Sample contains {} % of element {}.".format(float(x)*100 / sample_size, i)
+            prozent = float(x)*100 / sample_size
+            self.assertAlmostEqual(prozent, w[i], None, None, 5)
+            print "Sample contains {} % of element {}.".format(prozent, i)
         print sample
         #assert
 
+    def test_sampling_perf(self):
+        size = 20000
+        w = [random.random()/10000000000000. for i in range(size)]
+        dd = DiscreteDistribution(w)
+
+        sample = dd.sample1(size)
+        self.assertEqual(size, len(sample))
 
 if __name__ == "__main__":
     TestArrow.main()
