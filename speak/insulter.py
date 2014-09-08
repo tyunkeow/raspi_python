@@ -9,9 +9,9 @@ from text2wav import text2wav, play_wav, AUDIO_DIR
 ins_data = {
     "adjektive": [
         {
-            'm': "schoener",
-            "f": "schoene",
-            "n": "schoenes"
+            'm': "haesslicher",
+            "f": "haessliche",
+            "n": "haessliches"
         },
         {
             "m": "buckliger",
@@ -56,7 +56,7 @@ ins_data = {
         {
             "m": "schlechter",
             "f": "schlechte",
-            "n": "schlechters"
+            "n": "schlechtes"
         },
         {
             "m": "gewissenloser",
@@ -89,7 +89,7 @@ ins_data = {
             "n": "kleines"
         }
     ],
-    "steigerungen": ["leicht", "sehr", "massiv", "extrem", "besonders", "voll", "super"],
+    "steigerungen": ["sehr", "massiv", "extrem", "besonders", "ausserordentlich", "super"],
     "substantive": [
         {
             "geschlecht": "m",
@@ -101,15 +101,11 @@ ins_data = {
         },
         {
             "geschlecht": "m",
-            "wert": "Hosch"
-        },
-        {
-            "geschlecht": "m",
             "wert": "Heckenpenner"
         },
         {
             "geschlecht": "m",
-            "wert": "Asi"
+            "wert": "Schweinepriester"
         },
         {
             "geschlecht": "m",
@@ -128,12 +124,24 @@ ins_data = {
             "wert": "Ruepel"
         },
         {
-            "geschlecht": "n",
-            "wert": "Schwein"
+            "geschlecht": "m",
+            "wert": "Idiot"
+        },
+        {
+            "geschlecht": "m",
+            "wert": "Trottel"
+        },
+        {
+            "geschlecht": "m",
+            "wert": "Grotten-olm"
+        },
+        {
+            "geschlecht": "m",
+            "wert": "Pimmelbaer"
         },
         {
             "geschlecht": "n",
-            "wert": "Ferkel"
+            "wert": "Schwein"
         },
         {
             "geschlecht": "n",
@@ -148,8 +156,32 @@ ins_data = {
             "wert": "Huhn"
         },
         {
+            "geschlecht": "n",
+            "wert": "Luder"
+        },
+        {
+            "geschlecht": "n",
+            "wert": "Horrt-kind"
+        },
+        {
             "geschlecht": "f",
             "wert": "Hexe"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Made"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Schlampe"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Flachzange"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Hackfresse"
         },
         {
             "geschlecht": "m",
@@ -179,7 +211,7 @@ ins_data = {
 }
 
 
-FILENAME_PATTERN = AUDIO_DIR + 'insult{}.wav'
+FILENAME_PATTERN = AUDIO_DIR + 'insult{}.aiff'
 
 
 def pickRandom(list):
