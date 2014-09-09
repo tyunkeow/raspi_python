@@ -16,7 +16,7 @@ words = ['eins', 'zwei', 'drei', 'vier', "fuenf", "sechs", "sieben", "acht", "ne
 
 # volume = 0.1 - 100
 # speed = 0 - 100 (2 = verdoppelte geschw.)
-def text2wav_google(text, filename, overwrite=False):
+def text2wav_google(text, filename):
     url = "http://translate.google.com/translate_tts?tl=de&q=" + text
     #os.system(MPLAYER + ' -ao pcm:file={} -speed {} -volume {} -noconsolecontrols "{}"'.format(filename, speed, volume, url))
     user_agent = '"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.73.11 (KHTML, like Gecko) ' \
@@ -27,21 +27,21 @@ def text2wav_google(text, filename, overwrite=False):
     print "Soundfile written to " + filename
 
 
-def text2wav_espeak(text, filename, overwrite=False):
+def text2wav_espeak(text, filename):
     os.system('espeak -vde -w {} "{}"'.format(filename, text))
 
 
-def text2wav_mac(text, filename, overwrite=False):
+def text2aiff_mac(text, filename):
     os.system('say -v Anna -o {} --file-format=AIFF "{}"'.format(filename, text))
 
 
-def text2wav(text, filename, overwrite=False):
+def text2soundfile(text, filename, overwrite=False):
     filename = os.path.expanduser(filename)
     file_exists = os.path.exists(filename)
     if not overwrite and file_exists:
         print "Soundfile {} already exists and overwrite flag was not set. Skipping...".format(filename)
     else:
-        text2wav_mac(text, filename, overwrite)
+        text2aiff_mac(text, filename, overwrite)
 
 
 def get_filename(text):
@@ -78,7 +78,7 @@ def speak(text, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED):
         play_wav(filename)
 
 
-def play_wav(filename):
+def play_sound(filename):
     filename = os.path.expanduser(filename)
     print "Playing file ", filename
     #os.system('aplay -D sysdefault:CARD=Device {}'.format(filename))
