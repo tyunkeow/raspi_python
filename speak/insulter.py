@@ -242,11 +242,11 @@ def get_insult(idx_steig, idx_adj, idx_sub):
     return "Du " + pickSteigerung(g, idx_steig) + " " + pickAdjektiv(g, idx_adj) + " " + subst
 
 
-def speak_next_insult():
+def speak_next_insult(control=0):
     max = len(ins_data['steigerungen']) * len(ins_data['adjektive']) * len(ins_data['substantive'])
     fn = FILENAME_PATTERN.format(random.randint(0, max))
     print "speaking insult " + str(fn)
-    play_sound(fn)
+    play_sound(fn, control*4, 1+((control)/1000.0))
 
 
 def create_insult_audio_db():

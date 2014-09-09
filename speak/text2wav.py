@@ -77,12 +77,14 @@ def speak(text, volume=DEFAULT_VOLUME, speed=DEFAULT_SPEED):
         text2wav(text, filename, volume, speed)
         play_wav(filename)
 
-
-def play_sound(filename):
+# play audio with SoX
+def play_sound(filename, pitch=0, tempo=1):
     filename = os.path.expanduser(filename)
     print "Playing file ", filename
     #os.system('aplay -D sysdefault:CARD=Device {}'.format(filename))
-    os.system('play {} pitch 1'.format(filename))
+    cmd = 'play {} pitch {} speed {} bass +3'.format(filename, pitch, tempo)
+    print "cmd:", cmd
+    os.system(cmd)
 
 
 def build_word_db(overwrite=False):
