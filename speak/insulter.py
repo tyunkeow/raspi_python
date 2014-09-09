@@ -3,7 +3,7 @@
 
 import json
 import random
-from text2wav import text2wav, play_wav, AUDIO_DIR
+from text2wav import play_sound, text2soundfile, AUDIO_DIR
 
 
 ins_data = {
@@ -246,7 +246,7 @@ def speak_next_insult():
     max = len(ins_data['steigerungen']) * len(ins_data['adjektive']) * len(ins_data['substantive'])
     fn = FILENAME_PATTERN.format(random.randint(0, max))
     print "speaking insult " + str(fn)
-    play_wav(fn)
+    play_sound(fn)
 
 
 def create_insult_audio_db():
@@ -262,11 +262,11 @@ def create_insult_audio_db():
                 steigerung = steig
                 text = "Du {} {} {}".format(steigerung, adjektiv, substantiv)
                 #print "Writing {} to {}".format(text, filename)
-                text2wav(text, filename)
+                text2soundfile(text, filename)
 
 
 if __name__ == "__main__":
-    create_insult_audio_db()
+    #create_insult_audio_db()
 
     insult = get_insult(-1, -1, -1)
     print insult
