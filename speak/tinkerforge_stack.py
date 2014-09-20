@@ -33,6 +33,7 @@ class PiTinkerforgeStack:
     def connect(self):
         print "Connecting to host " + self.host + " on port " + str(self.port)
         self.con.connect(self.host, self.port)
+        self.set_ziel_geschlecht(self.io.get_value())
 
     def disconnect(self):
         print "Disconnecting from host " + self.host
@@ -40,10 +41,13 @@ class PiTinkerforgeStack:
 
     def motion_detected(self):
         print "CALLBACK!!"
-        speak_next_insult(self.poti_left.get_position())
+        ziel_geschlecht = "m"
+        if self.female:
+            ziel_geschlecht = "f"
+        speak_next_insult(ziel_geschlecht, self.poti_left.get_position())
 
     def motion_cycle_ended(self):
-        print "READY"
+        print "READY for motion detection!"
 
     def io_switch(self, interrupt_mask, value_mask):
         print "SWITCH"
@@ -53,13 +57,18 @@ class PiTinkerforgeStack:
 
         if interrupt_mask == 1:
             # button 1 switched
-            is_on = value_mask^14
-            if is_on:
-                print "FEMALE"
-                self.female = True
-            else:
-                print "MALE"
-                self.female = False
+            self.set_ziel_geschlecht(value_mask)
+
+
+    def set_ziel_geschlecht(self, value_mask):
+        is_on = value_mask^14
+        if is_on:
+            print "MALE"
+            self.female = False
+        else:
+            print "FEMALE"
+            self.female = True
+
 
     def register_callbacks(self):
         print "Registering callback to motion detector..."

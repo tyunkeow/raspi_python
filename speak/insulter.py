@@ -324,7 +324,7 @@ def speak_next_insult(ziel_geschlecht, control=0):
         max = 2304
     else:
         max = 1344
-    fn = FILENAME_PATTERN.format(random.randint(0, max))
+    fn = FILENAME_PATTERN.format(ziel_geschlecht, random.randint(0, max))
     print "speaking insult " + str(fn)
     play_sound(fn, control*4, 1+((control)/1000.0))
 
