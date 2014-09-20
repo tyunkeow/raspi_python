@@ -93,125 +93,199 @@ ins_data = {
     "substantive": [
         {
             "geschlecht": "m",
-            "wert": "Affe"
+            "wert": "Affe",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Geissel der Menschheit",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Geissel der Menschheit",
+            "ziel": "f"
+        },
+        {
+            "geschlecht": "m",
+            "wert": "Fuerst der Finsternis",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Fuerstin der Finsternis",
+            "ziel": "f"
         },
         {
             "geschlecht": "n",
-            "wert": "Stinktier"
+            "wert": "Stinktier",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Heckenpenner"
+            "wert": "Heckenpenner",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Schweinepriester"
+            "wert": "Schweinepriester",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Schweinepriesterin",
+            "ziel": "f"
         },
         {
             "geschlecht": "m",
-            "wert": "Luegenbaron"
+            "wert": "Luegenbaron",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Doedel"
+            "wert": "Doedel",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Erbsenzaehler"
+            "wert": "Erbsenzaehler",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Ruepel"
+            "wert": "Ruepel",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Idiot"
+            "wert": "Idiot",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Trottel"
+            "wert": "Trottel",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Grotten-olm"
+            "wert": "Grotten-olm",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Pimmelbaer"
+            "wert": "Pimmelbaer",
+            "ziel": "m"
         },
         {
             "geschlecht": "n",
-            "wert": "Schwein"
+            "wert": "Schwein",
+            "ziel": "m"
         },
         {
             "geschlecht": "n",
-            "wert": "Froschgesicht"
+            "wert": "Froschgesicht",
+            "ziel": "m"
         },
         {
             "geschlecht": "n",
-            "wert": "Pupsgesicht"
+            "wert": "Froschgesicht",
+            "ziel": "f"
         },
         {
             "geschlecht": "n",
-            "wert": "Huhn"
+            "wert": "Pupsgesicht",
+            "ziel": "m"
         },
         {
             "geschlecht": "n",
-            "wert": "Luder"
+            "wert": "Huhn",
+            "ziel": "f"
         },
         {
             "geschlecht": "n",
-            "wert": "Horrt-kind"
+            "wert": "Luder",
+            "ziel": "f"
+        },
+        {
+            "geschlecht": "n",
+            "wert": "Horrt-kind",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "n",
+            "wert": "Horrt-kind",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Hexe"
+            "wert": "Hexe",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Made"
+            "wert": "Made",
+            "ziel": "m"
         },
         {
             "geschlecht": "f",
-            "wert": "Schlampe"
+            "wert": "Made",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Flachzange"
+            "wert": "Schlampe",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Hackfresse"
+            "wert": "Hackfresse",
+            "ziel": "m"
         },
         {
             "geschlecht": "m",
-            "wert": "Sesselfurzer"
+            "wert": "Sesselfurzer",
+            "ziel": "m"
         },
         {
             "geschlecht": "f",
-            "wert": "Sesselfurzerin"
+            "wert": "Sesselfurzerin",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Sau"
+            "wert": "Sau",
+            "ziel": "f"
         },
         {
             "geschlecht": "f",
-            "wert": "Kartoffelnase"
+            "wert": "Kartoffelnase",
+            "ziel": "m"
         },
         {
             "geschlecht": "f",
-            "wert": "Flachzange"
+            "wert": "Flachzange",
+            "ziel": "m"
         },
         {
             "geschlecht": "f",
-            "wert": "Dumpfbacke"
+            "wert": "Evolutionsbremse",
+            "ziel": "m"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Evolutionsbremse",
+            "ziel": "f"
+        },
+        {
+            "geschlecht": "f",
+            "wert": "Dumpfbacke",
+            "ziel": "f"
         }
     ]
 }
 
 
-FILENAME_PATTERN = AUDIO_DIR + 'insult{}.aiff'
+FILENAME_PATTERN = AUDIO_DIR + '{}/insult{}.aiff'
 
 
 def pickRandom(list):
@@ -242,22 +316,35 @@ def get_insult(idx_steig, idx_adj, idx_sub):
     return "Du " + pickSteigerung(g, idx_steig) + " " + pickAdjektiv(g, idx_adj) + " " + subst
 
 
-def speak_next_insult(control=0):
-    max = len(ins_data['steigerungen']) * len(ins_data['adjektive']) * len(ins_data['substantive'])
+def speak_next_insult(ziel_geschlecht, control=0):
+
+    #max = len(ins_data['steigerungen']) * len(ins_data['adjektive']) * len(ins_data['substantive'])
+    max = 0
+    if ziel_geschlecht == 'm':
+        max = 2304
+    else:
+        max = 1344
     fn = FILENAME_PATTERN.format(random.randint(0, max))
     print "speaking insult " + str(fn)
     play_sound(fn, control*4, 1+((control)/1000.0))
 
 
 def create_insult_audio_db():
-    i = 0
+    male_count = 0
+    female_count = 0
     for steig in ins_data['steigerungen']:
         for adj in ins_data['adjektive']:
             for subs in ins_data['substantive']:
                 g = subs['geschlecht']
                 substantiv = subs['wert']
-                i += 1
-                filename = FILENAME_PATTERN.format(i)
+                ziel = subs['ziel'] # zielgeschlecht - f oder m
+                if ziel == "m":
+                    male_count += 1
+                    filename = FILENAME_PATTERN.format(ziel, male_count)
+                else: 
+                    female_count += 1
+                    filename = FILENAME_PATTERN.format(ziel, female_count)
+
                 adjektiv = adj[g]
                 steigerung = steig
                 text = "Du {} {} {}".format(steigerung, adjektiv, substantiv)
@@ -266,8 +353,8 @@ def create_insult_audio_db():
 
 
 if __name__ == "__main__":
-    #create_insult_audio_db()
+    create_insult_audio_db()
 
     insult = get_insult(-1, -1, -1)
     print insult
-    speak_next_insult()
+    speak_next_insult("m")

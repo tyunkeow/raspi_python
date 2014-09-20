@@ -32,6 +32,7 @@ def text2wav_espeak(text, filename):
 
 
 def text2aiff_mac(text, filename):
+    print "Writing file " + filename
     os.system('say -v Anna -o {} --file-format=AIFF "{}"'.format(filename, text))
 
 
@@ -41,7 +42,7 @@ def text2soundfile(text, filename, overwrite=False):
     if not overwrite and file_exists:
         print "Soundfile {} already exists and overwrite flag was not set. Skipping...".format(filename)
     else:
-        text2aiff_mac(text, filename, overwrite)
+        text2aiff_mac(text, filename)
 
 
 def get_filename(text):
