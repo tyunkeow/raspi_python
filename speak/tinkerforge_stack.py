@@ -48,7 +48,7 @@ class PiTinkerforgeStack:
         ziel_geschlecht = "m"
         if self.female:
             ziel_geschlecht = "f"
-        speak_next_insult(ziel_geschlecht, self.poti_left.get_position())
+        speak_next_insult(ziel_geschlecht, self.poti_left.get_position(), self.poti_right.get_position())
 
     def motion_cycle_ended(self):
         print "READY for motion detection!"
@@ -65,7 +65,11 @@ class PiTinkerforgeStack:
             self.set_ziel_geschlecht(value_mask)
         elif interrupt_mask == 2:
             print "Insult button pressed..."
-            self.insult()
+            button_up = value_mask&2
+            print "value_mask =" + str(button_up)
+            if button_up == 2:
+                self.insult()
+        print "io_switch() end"
 
     def set_ziel_geschlecht(self, value_mask):
         is_on = value_mask^14
@@ -81,8 +85,8 @@ class PiTinkerforgeStack:
         print "Registering callback to motion detector..."
         #self.motion.register_callback(self.motion.CALLBACK_MOTION_DETECTED, self.motion_detected)
         self.motion.register_callback(self.motion.CALLBACK_DETECTION_CYCLE_ENDED, self.motion_cycle_ended)
+        self.io.set_debounce_period(1000)
         self.io.register_callback(self.io.CALLBACK_INTERRUPT, self.io_switch)
-        self.io.set_debounce_period(800)
         # Enable interrupt on pin 0
         self.io.set_interrupt((1 << 0) | (1 << 1))
         #self.io.set_interrupt(1 << 1)
