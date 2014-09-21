@@ -5,6 +5,7 @@ from tinkerforge.bricklet_rotary_poti import RotaryPoti
 from tinkerforge.bricklet_io4 import IO4
 from insulter import speak_next_insult
 from time import sleep
+import sys
 
 
 
@@ -41,6 +42,9 @@ class PiTinkerforgeStack:
 
     def motion_detected(self):
         print "CALLBACK!!"
+        self.insult()
+
+    def insult(self):
         ziel_geschlecht = "m"
         if self.female:
             ziel_geschlecht = "f"
@@ -50,15 +54,18 @@ class PiTinkerforgeStack:
         print "READY for motion detection!"
 
     def io_switch(self, interrupt_mask, value_mask):
-        print "SWITCH"
-        #print('Interrupt by: ' + str(bin(interrupt_mask)))
-        #print('Value: ' + str(bin(value_mask)))
+        print "IO4 triggered"
+        print('Interrupt by: ' + str(bin(interrupt_mask)))
+        print('Value: ' + str(bin(value_mask)))
         #print('Val1: ' + str(value_mask))
 
         if interrupt_mask == 1:
+            print "Sex switched..."
             # button 1 switched
             self.set_ziel_geschlecht(value_mask)
-
+        elif interrupt_mask == 2:
+            print "Insult button pressed..."
+            self.insult()
 
     def set_ziel_geschlecht(self, value_mask):
         is_on = value_mask^14
@@ -72,11 +79,13 @@ class PiTinkerforgeStack:
 
     def register_callbacks(self):
         print "Registering callback to motion detector..."
-        self.motion.register_callback(self.motion.CALLBACK_MOTION_DETECTED, self.motion_detected)
+        #self.motion.register_callback(self.motion.CALLBACK_MOTION_DETECTED, self.motion_detected)
         self.motion.register_callback(self.motion.CALLBACK_DETECTION_CYCLE_ENDED, self.motion_cycle_ended)
         self.io.register_callback(self.io.CALLBACK_INTERRUPT, self.io_switch)
+        self.io.set_debounce_period(800)
         # Enable interrupt on pin 0
-        self.io.set_interrupt(1 << 0)
+        self.io.set_interrupt((1 << 0) | (1 << 1))
+        #self.io.set_interrupt(1 << 1)
         print "register done"
 
 
@@ -89,6 +98,7 @@ if __name__ == "__main__":
     print "Poti right position : ", stack.poti_right.get_position()
     stack.register_callbacks()
 
-    sleep(100)
+    sleep(1000000)
+    input('Press key to exit\n')
     stack.disconnect()
 
